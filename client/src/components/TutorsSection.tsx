@@ -1,8 +1,9 @@
 import { Card } from '@/components/ui/card';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
-import { GraduationCap, Award, Building2, Heart } from 'lucide-react';
+import { GraduationCap, Award, Building2, Heart, Users, Target, Star } from 'lucide-react';
 import siyandaImage from '@assets/WhatsApp_Image_2025-12-01_at_22.46.26_1114b9ca_1764881684167.jpg';
+import sibonisoImage from '@assets/WhatsApp_Image_2025-11-23_at_10.05.37_30c8290f_1764882512867.jpg';
 
 interface Tutor {
   id: string;
@@ -13,6 +14,7 @@ interface Tutor {
   experience: string;
   education: string;
   bio: string;
+  quote: string;
   highlights: {
     icon: typeof GraduationCap;
     title: string;
@@ -30,6 +32,7 @@ const tutors: Tutor[] = [
     experience: '9+ Years Experience',
     education: 'BSc Mathematics, Computer Science & Statistics - UCT',
     bio: 'My name is Siyanda Stekela, and I am a professional Mathematics tutor with over 9 years of tutoring experience, specialising in all school grades and university-level Mathematics. I offer expert tutoring for both the CAPS curriculum and the Cambridge curriculum, supporting learners in achieving academic confidence and excellence.',
+    quote: 'I am passionate about empowering students with the mathematical skills and confidence they need to succeed in their academic journey and beyond.',
     highlights: [
       {
         icon: GraduationCap,
@@ -45,6 +48,34 @@ const tutors: Tutor[] = [
         icon: Heart,
         title: 'Co-founder - The Spot NPO',
         description: 'Focused on mentorship, youth development, and academic support for the community.',
+      },
+    ],
+  },
+  {
+    id: 'siboniso-shandu',
+    name: 'Siboniso Shandu',
+    title: 'Mathematics & Physical Sciences Tutor',
+    image: sibonisoImage,
+    subjects: ['Mathematics', 'Physical Sciences'],
+    experience: '8+ Years Experience',
+    education: 'BEd Student - UNISA',
+    bio: 'I am a BEd student at UNISA and a dedicated tutor in Mathematics and Physical Sciences, with over 8 years of tutoring experience. I am passionate about helping learners truly understand the subjects by breaking down difficult concepts into simple, clear explanations. My teaching style is learner-centred and highly interactive, allowing students to build strong foundational understanding before attempting questions.',
+    quote: 'My goal is not only to help learners pass, but to help them excel. I guide learners step-by-step to improve their confidence and develop effective exam-writing strategies.',
+    highlights: [
+      {
+        icon: Target,
+        title: 'Learner-Centred Approach',
+        description: 'Step-by-step guidance on how to approach different types of problems and develop effective study strategies.',
+      },
+      {
+        icon: Star,
+        title: 'Outstanding Results',
+        description: 'Proven track record of helping many learners improve their marks dramatically over the years.',
+      },
+      {
+        icon: Users,
+        title: 'Individual Focus',
+        description: 'Patient and committed to each learner\'s individual needs, helping them not just pass, but excel.',
       },
     ],
   },
@@ -190,7 +221,7 @@ export function TutorsSection() {
                     </div>
 
                     <p className="text-muted-foreground italic leading-relaxed" data-testid={`text-passion-${tutor.id}`}>
-                      "I am passionate about empowering students with the mathematical skills and confidence they need to succeed in their academic journey and beyond."
+                      "{tutor.quote}"
                     </p>
                   </div>
                 </div>

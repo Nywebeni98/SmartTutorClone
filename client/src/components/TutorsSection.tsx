@@ -1,0 +1,204 @@
+import { Card } from '@/components/ui/card';
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
+import { Badge } from '@/components/ui/badge';
+import { GraduationCap, Award, Building2, Heart } from 'lucide-react';
+import siyandaImage from '@assets/WhatsApp_Image_2025-12-01_at_22.46.26_1114b9ca_1764881684167.jpg';
+
+interface Tutor {
+  id: string;
+  name: string;
+  title: string;
+  image: string;
+  subjects: string[];
+  experience: string;
+  education: string;
+  bio: string;
+  highlights: {
+    icon: typeof GraduationCap;
+    title: string;
+    description: string;
+  }[];
+}
+
+const tutors: Tutor[] = [
+  {
+    id: 'siyanda-stekela',
+    name: 'Siyanda Stekela',
+    title: 'Professional Mathematics Tutor',
+    image: siyandaImage,
+    subjects: ['Mathematics', 'CAPS Curriculum', 'Cambridge Curriculum'],
+    experience: '9+ Years Experience',
+    education: 'BSc Mathematics, Computer Science & Statistics - UCT',
+    bio: 'My name is Siyanda Stekela, and I am a professional Mathematics tutor with over 9 years of tutoring experience, specialising in all school grades and university-level Mathematics. I offer expert tutoring for both the CAPS curriculum and the Cambridge curriculum, supporting learners in achieving academic confidence and excellence.',
+    highlights: [
+      {
+        icon: GraduationCap,
+        title: 'Academic Excellence',
+        description: 'Bachelor of Science (BSc) degree in Mathematics, Computer Science, and Statistics from the University of Cape Town (UCT).',
+      },
+      {
+        icon: Building2,
+        title: 'Founder - Stekela Academy',
+        description: 'A tutoring company committed to improving learner performance through structured, personalised teaching.',
+      },
+      {
+        icon: Heart,
+        title: 'Co-founder - The Spot NPO',
+        description: 'Focused on mentorship, youth development, and academic support for the community.',
+      },
+    ],
+  },
+];
+
+export function TutorsSection() {
+  return (
+    <section id="tutors" className="py-16 lg:py-24 bg-background">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="text-center mb-12">
+          <h2 
+            className="font-heading font-semibold text-3xl sm:text-4xl lg:text-5xl mb-4"
+            style={{ color: 'hsl(var(--brand-blue))' }}
+            data-testid="text-tutors-heading"
+          >
+            Meet Our Tutors
+          </h2>
+          <p className="text-lg text-muted-foreground max-w-2xl mx-auto" data-testid="text-tutors-subtitle">
+            Our dedicated team of qualified educators are passionate about helping students achieve their academic goals.
+          </p>
+        </div>
+
+        <div className="space-y-12">
+          {tutors.map((tutor) => (
+            <Card 
+              key={tutor.id}
+              className="overflow-hidden"
+              data-testid={`card-tutor-${tutor.id}`}
+            >
+              <div className="grid lg:grid-cols-3 gap-0">
+                <div 
+                  className="lg:col-span-1 p-8 flex flex-col items-center justify-center text-center"
+                  style={{ 
+                    background: 'linear-gradient(135deg, hsl(var(--brand-blue) / 0.1) 0%, hsl(var(--brand-yellow) / 0.1) 100%)'
+                  }}
+                >
+                  <Avatar className="w-48 h-48 mb-6 border-4 border-white shadow-lg">
+                    <AvatarImage 
+                      src={tutor.image} 
+                      alt={tutor.name}
+                      className="object-cover object-top"
+                    />
+                    <AvatarFallback className="text-4xl font-bold" style={{ backgroundColor: 'hsl(var(--brand-blue))', color: 'white' }}>
+                      {tutor.name.split(' ').map(n => n[0]).join('')}
+                    </AvatarFallback>
+                  </Avatar>
+                  
+                  <h3 
+                    className="font-heading font-bold text-2xl mb-2"
+                    style={{ color: 'hsl(var(--brand-blue))' }}
+                    data-testid={`text-tutor-name-${tutor.id}`}
+                  >
+                    {tutor.name}
+                  </h3>
+                  
+                  <p 
+                    className="font-medium text-lg mb-4"
+                    style={{ color: 'hsl(var(--brand-orange))' }}
+                    data-testid={`text-tutor-title-${tutor.id}`}
+                  >
+                    {tutor.title}
+                  </p>
+
+                  <div className="flex flex-wrap justify-center gap-2 mb-4">
+                    <Badge 
+                      className="text-white"
+                      style={{ backgroundColor: 'hsl(var(--brand-yellow))' }}
+                      data-testid={`badge-experience-${tutor.id}`}
+                    >
+                      <Award className="w-3 h-3 mr-1" />
+                      {tutor.experience}
+                    </Badge>
+                  </div>
+
+                  <div className="flex flex-wrap justify-center gap-2">
+                    {tutor.subjects.map((subject, idx) => (
+                      <Badge 
+                        key={idx}
+                        variant="outline"
+                        className="border-2"
+                        style={{ borderColor: 'hsl(var(--brand-blue))', color: 'hsl(var(--brand-blue))' }}
+                        data-testid={`badge-subject-${tutor.id}-${idx}`}
+                      >
+                        {subject}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="lg:col-span-2 p-8">
+                  <div className="space-y-6">
+                    <div>
+                      <h4 
+                        className="font-heading font-semibold text-xl mb-3"
+                        style={{ color: 'hsl(var(--brand-blue))' }}
+                        data-testid={`text-about-tutor-${tutor.id}`}
+                      >
+                        About {tutor.name.split(' ')[0]}
+                      </h4>
+                      <p className="text-muted-foreground leading-relaxed" data-testid={`text-bio-${tutor.id}`}>
+                        {tutor.bio}
+                      </p>
+                    </div>
+
+                    <div 
+                      className="flex items-center gap-3 p-4 rounded-lg"
+                      style={{ backgroundColor: 'hsl(var(--brand-blue) / 0.1)' }}
+                    >
+                      <GraduationCap className="w-6 h-6 flex-shrink-0" style={{ color: 'hsl(var(--brand-blue))' }} />
+                      <p className="font-medium" style={{ color: 'hsl(var(--brand-blue))' }} data-testid={`text-education-${tutor.id}`}>
+                        {tutor.education}
+                      </p>
+                    </div>
+
+                    <div className="grid sm:grid-cols-3 gap-4">
+                      {tutor.highlights.map((highlight, idx) => {
+                        const Icon = highlight.icon;
+                        return (
+                          <Card 
+                            key={idx}
+                            className="p-4 hover-elevate transition-all"
+                            data-testid={`card-highlight-${tutor.id}-${idx}`}
+                          >
+                            <div 
+                              className="w-10 h-10 rounded-lg flex items-center justify-center mb-3"
+                              style={{ backgroundColor: 'hsl(var(--brand-yellow) / 0.2)' }}
+                            >
+                              <Icon className="w-5 h-5" style={{ color: 'hsl(var(--brand-yellow))' }} />
+                            </div>
+                            <h5 
+                              className="font-heading font-semibold text-sm mb-1"
+                              style={{ color: 'hsl(var(--brand-orange))' }}
+                              data-testid={`text-highlight-title-${tutor.id}-${idx}`}
+                            >
+                              {highlight.title}
+                            </h5>
+                            <p className="text-sm text-muted-foreground" data-testid={`text-highlight-desc-${tutor.id}-${idx}`}>
+                              {highlight.description}
+                            </p>
+                          </Card>
+                        );
+                      })}
+                    </div>
+
+                    <p className="text-muted-foreground italic leading-relaxed" data-testid={`text-passion-${tutor.id}`}>
+                      "I am passionate about empowering students with the mathematical skills and confidence they need to succeed in their academic journey and beyond."
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </Card>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}

@@ -34,6 +34,10 @@ app.use(express.json({
 }));
 app.use(express.urlencoded({ extended: false }));
 
+app.get("/health", (_req, res) => {
+  res.status(200).json({ status: "ok", timestamp: new Date().toISOString() });
+});
+
 app.use((req, res, next) => {
   const start = Date.now();
   const path = req.path;

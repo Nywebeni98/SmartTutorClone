@@ -1,7 +1,16 @@
 import { sql } from "drizzle-orm";
-import { pgTable, text, varchar, timestamp } from "drizzle-orm/pg-core";
+import { pgTable, text, varchar, timestamp, integer, boolean } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
+
+// Password validation schema for tutors
+export const passwordSchema = z.string()
+  .min(8, "Password must be at least 8 characters")
+  .max(20, "Password must be at most 20 characters")
+  .regex(/[A-Z]/, "Password must contain at least one uppercase letter")
+  .regex(/[a-z]/, "Password must contain at least one lowercase letter")
+  .regex(/[0-9]/, "Password must contain at least one number")
+  .regex(/[!@#$%^&*(),.?":{}|<>]/, "Password must contain at least one symbol");
 
 // Users table - for authentication via Supabase
 export const users = pgTable("users", {
@@ -20,12 +29,60 @@ export const contactSubmissions = pgTable("contact_submissions", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
+// Tutor profiles table - stores tutor information
+export const tutorProfiles = pgTable("tutor_profiles", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  supabaseUserId: text("supabase_user_id").notNull().unique(),
+  email: text("email").notNull().unique(),
+  fullName: text("full_name").notNull(),
+  photoUrl: text("photo_url"),
+  subjects: text("subjects").array(),
+  hourlyRate: integer("hourly_rate").default(200),
+  googleMeetUrl: text("google_meet_url"),
+  bio: text("bio"),
+  isApproved: boolean("is_approved").default(false),
+  isBlocked: boolean("is_blocked").default(false),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
 // Tutor availability table - days when tutor is available
 export const tutorAvailability = pgTable("tutor_availability", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  tutorId: varchar("tutor_id").notNull(),
   day: text("day").notNull(),
+  date: text("date"),
   startTime: text("start_time").notNull(),
   endTime: text("end_time").notNull(),
+  notes: text("notes"),
+  isBooked: boolean("is_booked").default(false),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+// Pricing table - for dynamic session pricing
+export const pricing = pgTable("pricing", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  hours: integer("hours").notNull(),
+  amount: integer("amount").notNull(),
+  isActive: boolean("is_active").default(true),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+// Booking payments table - tracks student payments for sessions
+export const bookingPayments = pgTable("booking_payments", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  studentName: text("student_name").notNull(),
+  studentEmail: text("student_email").notNull(),
+  studentPhone: text("student_phone"),
+  tutorId: varchar("tutor_id").notNull(),
+  hoursBooked: integer("hours_booked").notNull(),
+  amountPaid: integer("amount_paid").notNull(),
+  paymentStatus: text("payment_status").default("pending").notNull(),
+  paymentReference: text("payment_reference"),
+  meetingLink: text("meeting_link"),
+  sessionDate: text("session_date").notNull(),
+  sessionTime: text("session_time").notNull(),
+  subject: text("subject").notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
@@ -57,10 +114,73 @@ export const insertContactSchema = createInsertSchema(contactSubmissions).omit({
 export const insertAvailabilitySchema = createInsertSchema(tutorAvailability).omit({
   id: true,
   createdAt: true,
+  isBooked: true,
 }).extend({
+  tutorId: z.string().min(1, "Tutor ID is required"),
   day: z.string().min(1, "Please select a day"),
+  date: z.string().optional(),
   startTime: z.string().min(1, "Please select start time"),
   endTime: z.string().min(1, "Please select end time"),
+  notes: z.string().optional(),
+});
+
+export const insertTutorProfileSchema = createInsertSchema(tutorProfiles).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+  isApproved: true,
+  isBlocked: true,
+}).extend({
+  supabaseUserId: z.string().min(1, "User ID is required"),
+  email: z.string().email("Invalid email address"),
+  fullName: z.string().min(2, "Name must be at least 2 characters"),
+  photoUrl: z.string().url().optional().or(z.literal("")),
+  subjects: z.array(z.string()).optional(),
+  hourlyRate: z.number().min(0).optional(),
+  googleMeetUrl: z.string().url("Invalid Google Meet URL").optional().or(z.literal("")),
+  bio: z.string().optional(),
+});
+
+export const insertPricingSchema = createInsertSchema(pricing).omit({
+  id: true,
+  createdAt: true,
+}).extend({
+  hours: z.number().min(1, "Hours must be at least 1"),
+  amount: z.number().min(0, "Amount must be positive"),
+  isActive: z.boolean().optional(),
+});
+
+export const insertBookingPaymentSchema = createInsertSchema(bookingPayments).omit({
+  id: true,
+  createdAt: true,
+  paymentStatus: true,
+  meetingLink: true,
+}).extend({
+  studentName: z.string().min(2, "Name must be at least 2 characters"),
+  studentEmail: z.string().email("Invalid email address"),
+  studentPhone: z.string().optional(),
+  tutorId: z.string().min(1, "Tutor ID is required"),
+  hoursBooked: z.number().min(1).max(2),
+  amountPaid: z.number().min(0),
+  paymentReference: z.string().optional(),
+  sessionDate: z.string().min(1, "Session date is required"),
+  sessionTime: z.string().min(1, "Session time is required"),
+  subject: z.string().min(1, "Subject is required"),
+});
+
+export const tutorSignUpSchema = z.object({
+  email: z.string().email("Invalid email address"),
+  password: passwordSchema,
+  confirmPassword: z.string(),
+  fullName: z.string().min(2, "Name must be at least 2 characters"),
+}).refine((data) => data.password === data.confirmPassword, {
+  message: "Passwords don't match",
+  path: ["confirmPassword"],
+});
+
+export const tutorSignInSchema = z.object({
+  email: z.string().email("Invalid email address"),
+  password: z.string().min(1, "Password is required"),
 });
 
 export const insertAppointmentSchema = createInsertSchema(appointments).omit({
@@ -84,3 +204,12 @@ export type Availability = typeof tutorAvailability.$inferSelect;
 export type InsertAppointment = z.infer<typeof insertAppointmentSchema>;
 export type Appointment = typeof appointments.$inferSelect;
 export type User = typeof users.$inferSelect;
+
+export type InsertTutorProfile = z.infer<typeof insertTutorProfileSchema>;
+export type TutorProfile = typeof tutorProfiles.$inferSelect;
+export type InsertPricing = z.infer<typeof insertPricingSchema>;
+export type Pricing = typeof pricing.$inferSelect;
+export type InsertBookingPayment = z.infer<typeof insertBookingPaymentSchema>;
+export type BookingPayment = typeof bookingPayments.$inferSelect;
+export type TutorSignUp = z.infer<typeof tutorSignUpSchema>;
+export type TutorSignIn = z.infer<typeof tutorSignInSchema>;

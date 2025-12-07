@@ -1,0 +1,139 @@
+1. Admin Account (Me)
+
+Create an Admin Login with the following fixed credentials:
+
+Username: Lisa98
+
+Password: Lisa98*#2025
+
+This Admin panel must be fully separate from tutors and students.
+
+Admin Capabilities:
+
+View and manage all tutors
+
+View, verify, and monitor all student payments
+
+View and manage all bookings & meeting schedules
+
+Approve or block tutors
+
+Edit or delete tutor availability
+
+View and download payment history
+
+See filtered views: daily, weekly, monthly bookings
+
+Store admin session securely in Supabase Auth or server sessions.
+
+🧑‍🏫 2. Tutor System (Add-On)
+
+Tutors already have sign-in, password, and calendar from the previous prompt.
+Now add:
+
+A. Google Meet Link
+
+Add a field on the tutor dashboard:
+“Google Meet Link for Sessions”
+
+Tutors must save their link before they can accept bookings.
+
+Store in table tutors:
+
+google_meet_url
+
+B. Payment Required Before Meeting
+
+Students must pay before joining the session.
+
+Workflow:
+
+Student chooses hours (1–2 hours currently)
+
+System calculates price automatically:
+
+1 hour = R200
+
+2 hours = R400
+
+(make pricing dynamic from database for future updates)
+
+Student pays via Yoco payment integration
+
+Only after successful payment:
+
+booking is created
+
+student receives the tutor’s Google Meet link
+
+tutor receives booking notification
+
+Do NOT allow meeting access until payment is confirmed.
+
+C. Booking Storage (Supabase)
+
+Create table booking_payments:
+
+id
+
+student_id
+
+tutor_id
+
+hours_booked
+
+amount_paid
+
+payment_status (pending, paid)
+
+meeting_link
+
+start_time
+
+created_at
+
+proof_of_payment (if needed)
+
+💳 3. Yoco Payment Integration
+
+Integrate Yoco Payment Gateway for secure card payments.
+
+Requirements:
+
+Generate dynamic payment links based on selected hours
+
+If hours = 1 → charge R200
+
+If hours = 2 → charge R400
+
+Store payment reference in Supabase
+
+Redirect back to the booking confirmation page after successful payment
+
+Students MUST pay before meeting.
+
+📅 4. Tutor Availability Calendar (Already Requested)
+
+Keep the existing system
+
+Tutors add dates, times, and notes
+
+Students only see slots marked “available”
+
+After payment, slot becomes “booked”
+
+Do NOT break existing calendar code.
+
+🧩 5. Front-End Requirements
+
+Add "Admin Login" button (separate from tutor & student login)
+
+Keep all UI styles the same
+
+Do NOT remove or override existing design
+
+Add strong-password checks only to tutor sign-up, not admin
+
+Add clear success & error messages for payments and bookings
+
+PROMPT END

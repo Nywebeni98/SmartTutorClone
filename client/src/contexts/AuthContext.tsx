@@ -18,16 +18,13 @@ interface AuthContextType {
   tutorSignIn: (email: string, password: string) => Promise<{ error?: string }>;
   resetPassword: (email: string) => Promise<{ error?: string }>;
   adminSignIn: (username: string, password: string) => Promise<{ error?: string }>;
-  adminSignOut: () => void;
+  adminSignOut: () => Promise<void>;
+  getAdminToken: () => string | null;
   isAdmin: boolean;
   refreshTutorProfile: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
-
-// Admin credentials (hashed comparison happens server-side for security)
-const ADMIN_USERNAME = 'Lisa98';
-const ADMIN_PASSWORD = 'Lisa98*#2025';
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
@@ -225,22 +222,58 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  // Admin sign in with fixed credentials
+  // Admin sign in with server-side validation
   const adminSignIn = async (username: string, password: string): Promise<{ error?: string }> => {
-    if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
-      setIsAdmin(true);
-      setUserRole('admin');
-      sessionStorage.setItem('adminSession', 'true');
-      return {};
+    try {
+      const response = await fetch('/api/admin/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setIsAdmin(true);
+        setUserRole('admin');
+        sessionStorage.setItem('adminSession', 'true');
+        if (data.token) {
+          sessionStorage.setItem('adminToken', data.token);
+        }
+        return {};
+      } else {
+        const data = await response.json();
+        return { error: data.message || 'Invalid admin credentials' };
+      }
+    } catch (error) {
+      return { error: 'Failed to connect to server' };
     }
-    return { error: 'Invalid admin credentials' };
   };
 
   // Admin sign out
-  const adminSignOut = () => {
+  const adminSignOut = async () => {
+    const adminToken = sessionStorage.getItem('adminToken');
+    if (adminToken) {
+      try {
+        await fetch('/api/admin/logout', {
+          method: 'POST',
+          headers: { 
+            'Content-Type': 'application/json',
+            'x-admin-token': adminToken,
+          },
+        });
+      } catch (error) {
+        console.error('Error during admin logout:', error);
+      }
+    }
     setIsAdmin(false);
     setUserRole(null);
     sessionStorage.removeItem('adminSession');
+    sessionStorage.removeItem('adminToken');
+  };
+
+  // Get admin token for API calls
+  const getAdminToken = (): string | null => {
+    return sessionStorage.getItem('adminToken');
   };
 
   const value = {
@@ -255,6 +288,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     resetPassword,
     adminSignIn,
     adminSignOut,
+    getAdminToken,
     isAdmin,
     refreshTutorProfile,
   };

@@ -92,20 +92,59 @@ The application is configured for PostgreSQL but currently uses in-memory storag
 
 ### Authentication & Authorization
 
-**Supabase Integration:**
-- Supabase client for OAuth authentication (Google Sign-In)
-- AuthContext manages user session state across the application
-- Graceful degradation if Supabase environment variables are missing
-- Session persistence through Supabase's built-in token management
+**Multi-Role Authentication System:**
 
-**Authentication Flow:**
-- User clicks "Continue with Google" in header
-- Supabase handles OAuth flow with Google provider
-- Session state synced via `onAuthStateChange` listener
-- User profile displayed in header with avatar and dropdown menu
+1. **Students (Google OAuth via Supabase)**
+   - Users click "Student Login" → "Continue with Google" 
+   - Supabase handles OAuth flow with Google provider
+   - Session state synced via `onAuthStateChange` listener
+   - Students can browse tutors and book sessions
 
-**Current State:**
-Authentication is configured but optional - the contact form and main content work without authentication.
+2. **Tutors (Email/Password via Supabase)**
+   - Strong password requirements: 8-20 characters, uppercase, lowercase, number, special character
+   - Tutor registration creates both Supabase auth user and tutor profile in database
+   - Password reset functionality via Supabase
+   - Tutors must be approved by admin before appearing on the public site
+
+3. **Admin (Server-Side Token Authentication)**
+   - Fixed credentials validated server-side (default: Lisa98/Lisa98*#2025)
+   - Server issues session token stored in sessionStorage
+   - Admin token required in `x-admin-token` header for admin operations
+   - Can approve/block tutors, view bookings, and manage pricing
+
+**Protected Routes:**
+- `/tutor-dashboard` - Tutor profile management, availability, bookings
+- `/admin` - Admin dashboard for managing tutors and bookings
+
+### Tutor Management System
+
+**Tutor Profiles:**
+- fullName, email, bio, subjects (array), hourlyRate
+- photoUrl, googleMeetUrl for video sessions
+- isApproved (default false), isBlocked (default false)
+
+**Availability System:**
+- Tutors set available time slots (day, date, startTime, endTime)
+- Slots marked as booked after successful payment
+
+### Payment Integration (Yoco)
+
+**Yoco Payment Gateway:**
+- Secret key stored in `YOCO_SECRET_KEY` environment variable
+- Checkout creation at `/api/yoco/create-checkout`
+- Minimum payment: R2 (200 cents), currency: ZAR
+
+**Payment Flow:**
+1. Student selects tutor and time slot
+2. Enters name, email, phone, session duration
+3. Clicks "Proceed to Payment" → redirects to Yoco checkout
+4. On success: payment marked complete, Google Meet link revealed
+5. On failure/cancel: appropriate feedback page shown
+
+**Payment Callback URLs:**
+- `/payment/success?bookingId=xxx` - Success page with meeting link
+- `/payment/failure` - Failure page with retry option
+- `/payment/cancel` - Cancellation page
 
 ### External Dependencies
 

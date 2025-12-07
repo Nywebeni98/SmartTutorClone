@@ -1,8 +1,27 @@
-import type { Express } from "express";
+import type { Express, Request, Response, NextFunction } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { insertContactSchema, insertAppointmentSchema, insertAvailabilitySchema, insertTutorProfileSchema, insertBookingPaymentSchema, passwordSchema } from "@shared/schema";
 import { fromZodError } from "zod-validation-error";
+
+// Admin credentials
+const ADMIN_USERNAME = process.env.ADMIN_USERNAME || 'Lisa98';
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'Lisa98*#2025';
+
+// Simple admin session tracking (in production, use proper sessions/JWT)
+const adminSessions = new Set<string>();
+
+// Middleware to check admin authorization
+function requireAdmin(req: Request, res: Response, next: NextFunction) {
+  const adminToken = req.headers['x-admin-token'] as string;
+  if (!adminToken || !adminSessions.has(adminToken)) {
+    return res.status(403).json({
+      success: false,
+      message: "Admin authorization required",
+    });
+  }
+  next();
+}
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Contact form submission endpoint
@@ -216,22 +235,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Tutor profile endpoints
   app.post("/api/tutor-profiles", async (req, res) => {
     try {
+      console.log("Creating tutor profile with data:", JSON.stringify(req.body, null, 2));
       const validatedData = insertTutorProfileSchema.parse(req.body);
       const profile = await storage.createTutorProfile(validatedData);
       res.status(201).json(profile);
     } catch (error: any) {
       if (error.name === 'ZodError') {
         const validationError = fromZodError(error);
+        console.error("Tutor profile validation error:", validationError.message);
         return res.status(400).json({
           success: false,
-          message: "Validation error",
-          errors: validationError.message,
+          message: validationError.message,
+          errors: validationError.details,
         });
       }
       console.error("Error creating tutor profile:", error);
       res.status(500).json({
         success: false,
-        message: "Internal server error",
+        message: error.message || "Internal server error",
       });
     }
   });
@@ -313,8 +334,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Admin routes for tutor management
-  app.patch("/api/tutor-profiles/:id/approve", async (req, res) => {
+  // Admin routes for tutor management (protected by admin token)
+  app.patch("/api/tutor-profiles/:id/approve", requireAdmin, async (req, res) => {
     try {
       const { id } = req.params;
       const profile = await storage.approveTutor(id);
@@ -338,7 +359,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.patch("/api/tutor-profiles/:id/block", async (req, res) => {
+  app.patch("/api/tutor-profiles/:id/block", requireAdmin, async (req, res) => {
     try {
       const { id } = req.params;
       const { blocked } = req.body;
@@ -677,6 +698,45 @@ export async function registerRoutes(app: Express): Promise<Server> {
         message: "Internal server error",
       });
     }
+  });
+
+  // Admin authentication endpoint (secure server-side validation)
+  app.post("/api/admin/login", async (req, res) => {
+    try {
+      const { username, password } = req.body;
+      
+      if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
+        // Generate a simple token (in production, use proper JWT)
+        const token = `admin_${Date.now()}_${Math.random().toString(36).substring(7)}`;
+        adminSessions.add(token);
+        
+        res.json({
+          success: true,
+          message: "Admin login successful",
+          token,
+        });
+      } else {
+        res.status(401).json({
+          success: false,
+          message: "Invalid admin credentials",
+        });
+      }
+    } catch (error) {
+      console.error("Error in admin login:", error);
+      res.status(500).json({
+        success: false,
+        message: "Internal server error",
+      });
+    }
+  });
+
+  // Admin logout endpoint
+  app.post("/api/admin/logout", (req, res) => {
+    const adminToken = req.headers['x-admin-token'] as string;
+    if (adminToken) {
+      adminSessions.delete(adminToken);
+    }
+    res.json({ success: true, message: "Logged out successfully" });
   });
 
   const httpServer = createServer(app);

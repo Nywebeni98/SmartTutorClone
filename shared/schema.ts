@@ -75,14 +75,12 @@ export const bookingPayments = pgTable("booking_payments", {
   studentEmail: text("student_email").notNull(),
   studentPhone: text("student_phone"),
   tutorId: varchar("tutor_id").notNull(),
-  hoursBooked: integer("hours_booked").notNull(),
-  amountPaid: integer("amount_paid").notNull(),
+  availabilityId: varchar("availability_id"),
+  hours: integer("hours").default(1).notNull(),
+  amount: integer("amount").notNull(),
   paymentStatus: text("payment_status").default("pending").notNull(),
-  paymentReference: text("payment_reference"),
+  yocoCheckoutId: text("yoco_checkout_id"),
   meetingLink: text("meeting_link"),
-  sessionDate: text("session_date").notNull(),
-  sessionTime: text("session_time").notNull(),
-  subject: text("subject").notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
@@ -134,11 +132,11 @@ export const insertTutorProfileSchema = createInsertSchema(tutorProfiles).omit({
   supabaseUserId: z.string().min(1, "User ID is required"),
   email: z.string().email("Invalid email address"),
   fullName: z.string().min(2, "Name must be at least 2 characters"),
-  photoUrl: z.string().url().optional().or(z.literal("")),
-  subjects: z.array(z.string()).optional(),
-  hourlyRate: z.number().min(0).optional(),
-  googleMeetUrl: z.string().url("Invalid Google Meet URL").optional().or(z.literal("")),
-  bio: z.string().optional(),
+  photoUrl: z.string().url().optional().or(z.literal("")).nullable(),
+  subjects: z.array(z.string()).optional().nullable(),
+  hourlyRate: z.number().min(0).optional().nullable(),
+  googleMeetUrl: z.string().url("Invalid Google Meet URL").optional().or(z.literal("")).nullable(),
+  bio: z.string().optional().nullable(),
 });
 
 export const insertPricingSchema = createInsertSchema(pricing).omit({
@@ -153,19 +151,17 @@ export const insertPricingSchema = createInsertSchema(pricing).omit({
 export const insertBookingPaymentSchema = createInsertSchema(bookingPayments).omit({
   id: true,
   createdAt: true,
-  paymentStatus: true,
-  meetingLink: true,
 }).extend({
   studentName: z.string().min(2, "Name must be at least 2 characters"),
   studentEmail: z.string().email("Invalid email address"),
-  studentPhone: z.string().optional(),
+  studentPhone: z.string().optional().nullable(),
   tutorId: z.string().min(1, "Tutor ID is required"),
-  hoursBooked: z.number().min(1).max(2),
-  amountPaid: z.number().min(0),
-  paymentReference: z.string().optional(),
-  sessionDate: z.string().min(1, "Session date is required"),
-  sessionTime: z.string().min(1, "Session time is required"),
-  subject: z.string().min(1, "Subject is required"),
+  availabilityId: z.string().optional().nullable(),
+  hours: z.number().min(1).optional(),
+  amount: z.number().min(0),
+  paymentStatus: z.string().optional(),
+  yocoCheckoutId: z.string().optional().nullable(),
+  meetingLink: z.string().optional().nullable(),
 });
 
 export const tutorSignUpSchema = z.object({

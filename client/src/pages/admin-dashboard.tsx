@@ -15,7 +15,7 @@ import {
 import type { TutorProfile, BookingPayment, Pricing } from '@shared/schema';
 
 export default function AdminDashboard() {
-  const { isAdmin, adminSignOut, userRole } = useAuth();
+  const { isAdmin, adminSignOut, userRole, getAdminToken } = useAuth();
   const { toast } = useToast();
   const [, setLocation] = useLocation();
 
@@ -36,20 +36,45 @@ export default function AdminDashboard() {
 
   const approveTutorMutation = useMutation({
     mutationFn: async (id: string) => {
-      return apiRequest('PATCH', `/api/tutor-profiles/${id}/approve`);
+      const token = getAdminToken();
+      const response = await fetch(`/api/tutor-profiles/${id}/approve`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { 'x-admin-token': token } : {}),
+        },
+      });
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.message || 'Failed to approve tutor');
+      }
+      return response.json();
     },
     onSuccess: () => {
       toast({ title: 'Tutor Approved', description: 'The tutor has been approved successfully.' });
       queryClient.invalidateQueries({ queryKey: ['/api/tutor-profiles'] });
     },
-    onError: () => {
-      toast({ title: 'Error', description: 'Failed to approve tutor.', variant: 'destructive' });
+    onError: (error: Error) => {
+      toast({ title: 'Error', description: error.message || 'Failed to approve tutor.', variant: 'destructive' });
     },
   });
 
   const blockTutorMutation = useMutation({
     mutationFn: async ({ id, blocked }: { id: string; blocked: boolean }) => {
-      return apiRequest('PATCH', `/api/tutor-profiles/${id}/block`, { blocked });
+      const token = getAdminToken();
+      const response = await fetch(`/api/tutor-profiles/${id}/block`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { 'x-admin-token': token } : {}),
+        },
+        body: JSON.stringify({ blocked }),
+      });
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.message || 'Failed to update tutor status');
+      }
+      return response.json();
     },
     onSuccess: (_, { blocked }) => {
       toast({ 
@@ -58,8 +83,8 @@ export default function AdminDashboard() {
       });
       queryClient.invalidateQueries({ queryKey: ['/api/tutor-profiles'] });
     },
-    onError: () => {
-      toast({ title: 'Error', description: 'Failed to update tutor status.', variant: 'destructive' });
+    onError: (error: Error) => {
+      toast({ title: 'Error', description: error.message || 'Failed to update tutor status.', variant: 'destructive' });
     },
   });
 

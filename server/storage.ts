@@ -282,9 +282,11 @@ export class MemStorage implements IStorage {
       ...insertPayment,
       id,
       studentPhone: insertPayment.studentPhone || null,
-      paymentReference: insertPayment.paymentReference || null,
-      paymentStatus: "pending",
-      meetingLink: null,
+      availabilityId: insertPayment.availabilityId || null,
+      hours: insertPayment.hours || 1,
+      yocoCheckoutId: insertPayment.yocoCheckoutId || null,
+      paymentStatus: insertPayment.paymentStatus || "pending",
+      meetingLink: insertPayment.meetingLink || null,
       createdAt: new Date(),
     };
     this.bookingPayments.set(id, payment);

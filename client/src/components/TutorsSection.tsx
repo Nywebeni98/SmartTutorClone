@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { BookingModal } from '@/components/BookingModal';
-import { GraduationCap, Award, Building2, Heart, Users, Target, Star, BookOpen, Lightbulb, Calendar, DollarSign } from 'lucide-react';
+import { GraduationCap, Award, Building2, Heart, Users, Target, Star, BookOpen, Lightbulb, Calendar, DollarSign, Video } from 'lucide-react';
 import type { TutorProfile } from '@shared/schema';
 import siyandaImage from '@assets/WhatsApp_Image_2025-12-01_at_22.46.26_1114b9ca_1764881684167.jpg';
 import sibonisoImage from '@assets/WhatsApp_Image_2025-11-23_at_10.05.37_30c8290f_1764882512867.jpg';
@@ -21,6 +21,9 @@ interface Tutor {
   education: string;
   bio: string;
   quote: string;
+  hourlyRate: number;
+  physicsRate?: number;
+  googleMeetUrl: string;
   highlights: {
     icon: typeof GraduationCap;
     title: string;
@@ -39,6 +42,8 @@ const tutors: Tutor[] = [
     education: 'BSc Mathematics, Computer Science & Statistics - UCT',
     bio: 'My name is Siyanda Stekela, and I am a professional Mathematics tutor with over 9 years of tutoring experience, specialising in all school grades and university-level Mathematics. I offer expert tutoring for both the CAPS curriculum and the Cambridge curriculum, supporting learners in achieving academic confidence and excellence.',
     quote: 'I am passionate about empowering students with the mathematical skills and confidence they need to succeed in their academic journey and beyond.',
+    hourlyRate: 200,
+    googleMeetUrl: 'https://meet.google.com/auv-hbbs-nre',
     highlights: [
       {
         icon: GraduationCap,
@@ -67,6 +72,9 @@ const tutors: Tutor[] = [
     education: 'BEd Student - UNISA',
     bio: 'I am a BEd student at UNISA and a dedicated tutor in Mathematics and Physical Sciences, with over 8 years of tutoring experience. I am passionate about helping learners truly understand the subjects by breaking down difficult concepts into simple, clear explanations. My teaching style is learner-centred and highly interactive, allowing students to build strong foundational understanding before attempting questions.',
     quote: 'My goal is not only to help learners pass, but to help them excel. I guide learners step-by-step to improve their confidence and develop effective exam-writing strategies.',
+    hourlyRate: 200,
+    physicsRate: 250,
+    googleMeetUrl: 'https://meet.google.com/krq-nbsr-gnh',
     highlights: [
       {
         icon: Target,
@@ -95,6 +103,8 @@ const tutors: Tutor[] = [
     education: 'BEd Senior & FET Phase (English & History) - UJ',
     bio: 'I am Thamsanqa Charles Ngonyama. I hold a Bachelor of Education in Senior and FET Phase (English and History) from the University of Johannesburg. I have tutored learners for a couple of years in English, History and CAT. I have always been passionate about teaching which is why I chose it as a career. My degree has equipped me with the necessary skills to create intervention plans for learners that have a hard time grasping content, which makes me the ideal tutor.',
     quote: 'Teaching is not just a career for me, it is my passion. I believe every learner can succeed with the right support and guidance.',
+    hourlyRate: 200,
+    googleMeetUrl: 'https://meet.google.com/tha-msanqa-meet',
     highlights: [
       {
         icon: GraduationCap,
@@ -198,7 +208,7 @@ export function TutorsSection() {
                     </Badge>
                   </div>
 
-                  <div className="flex flex-wrap justify-center gap-2">
+                  <div className="flex flex-wrap justify-center gap-2 mb-4">
                     {tutor.subjects.map((subject, idx) => (
                       <Badge 
                         key={idx}
@@ -210,6 +220,39 @@ export function TutorsSection() {
                         {subject}
                       </Badge>
                     ))}
+                  </div>
+
+                  {/* Pricing Section */}
+                  <div className="space-y-2 mt-4">
+                    <div className="flex items-center justify-center gap-2">
+                      <DollarSign className="w-4 h-4" style={{ color: 'hsl(var(--brand-yellow))' }} />
+                      <span className="font-semibold" style={{ color: 'hsl(var(--brand-orange))' }} data-testid={`text-rate-${tutor.id}`}>
+                        R{tutor.hourlyRate}/hour
+                      </span>
+                    </div>
+                    {tutor.physicsRate && (
+                      <div className="flex items-center justify-center gap-2">
+                        <DollarSign className="w-4 h-4" style={{ color: 'hsl(var(--brand-yellow))' }} />
+                        <span className="font-semibold" style={{ color: 'hsl(var(--brand-orange))' }} data-testid={`text-physics-rate-${tutor.id}`}>
+                          R{tutor.physicsRate}/hour (Physics)
+                        </span>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Google Meet Link */}
+                  <div className="mt-4">
+                    <a 
+                      href={tutor.googleMeetUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-white text-sm font-medium transition-colors hover:opacity-90"
+                      style={{ backgroundColor: 'hsl(var(--brand-blue))' }}
+                      data-testid={`link-meet-${tutor.id}`}
+                    >
+                      <Video className="w-4 h-4" />
+                      Join Google Meet
+                    </a>
                   </div>
                 </div>
 

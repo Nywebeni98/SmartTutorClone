@@ -142,22 +142,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       });
 
       if (error) {
-        // Handle specific Supabase auth errors with user-friendly messages
-        const errorMessage = error.message.toLowerCase();
-        
-        if (errorMessage.includes('already registered') || errorMessage.includes('already exists')) {
-          return { error: 'An account with this email already exists. Please sign in instead.' };
-        }
-        
-        if (errorMessage.includes('password')) {
-          return { error: 'Password does not meet requirements. Please use a stronger password.' };
-        }
-        
-        if (errorMessage.includes('email')) {
-          return { error: 'Please enter a valid email address.' };
-        }
-        
-        return { error: error.message };
+        return { error: getAuthErrorMessage(error) };
       }
 
       if (data.user) {
@@ -188,6 +173,55 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  // Helper function to get user-friendly auth error message
+  const getAuthErrorMessage = (error: { status?: number; message?: string; code?: string }): string => {
+    // Use status codes first (more reliable than message matching)
+    const status = error.status;
+    const code = error.code;
+    
+    if (status === 400) {
+      // Bad request - typically invalid credentials or validation error
+      if (code === 'invalid_credentials' || error.message?.toLowerCase().includes('invalid')) {
+        return 'Invalid email or password. Please check your credentials and try again.';
+      }
+      if (code === 'email_not_confirmed' || error.message?.toLowerCase().includes('email not confirmed')) {
+        return 'Please verify your email address. Check your inbox for a confirmation link.';
+      }
+      return 'Invalid request. Please check your information and try again.';
+    }
+    
+    if (status === 401) {
+      return 'Your session has expired. Please sign in again.';
+    }
+    
+    if (status === 422) {
+      // Unprocessable entity - validation errors
+      if (error.message?.toLowerCase().includes('password')) {
+        return 'Password does not meet requirements. Please use a stronger password.';
+      }
+      if (error.message?.toLowerCase().includes('email')) {
+        return 'Please enter a valid email address.';
+      }
+      return 'Please check your information and try again.';
+    }
+    
+    if (status === 429) {
+      return 'Too many attempts. Please wait a few minutes before trying again.';
+    }
+    
+    // Fallback to message-based detection for edge cases
+    const message = error.message?.toLowerCase() || '';
+    if (message.includes('already registered') || message.includes('already exists')) {
+      return 'An account with this email already exists. Please sign in instead.';
+    }
+    if (message.includes('user not found')) {
+      return 'No account found with this email. Please sign up first.';
+    }
+    
+    // Return original message if no specific handling
+    return error.message || 'An error occurred. Please try again.';
+  };
+
   // Tutor sign in with email and password
   const tutorSignIn = async (email: string, password: string): Promise<{ error?: string }> => {
     try {
@@ -197,26 +231,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       });
 
       if (error) {
-        // Handle specific Supabase auth errors with user-friendly messages
-        const errorMessage = error.message.toLowerCase();
-        
-        if (errorMessage.includes('invalid login credentials') || errorMessage.includes('invalid credentials')) {
-          return { error: 'Invalid email or password. Please check your credentials and try again.' };
-        }
-        
-        if (errorMessage.includes('email not confirmed')) {
-          return { error: 'Please verify your email address. Check your inbox for a confirmation link.' };
-        }
-        
-        if (errorMessage.includes('too many requests')) {
-          return { error: 'Too many login attempts. Please wait a few minutes before trying again.' };
-        }
-        
-        if (errorMessage.includes('user not found')) {
-          return { error: 'No account found with this email. Please sign up first.' };
-        }
-        
-        return { error: error.message };
+        return { error: getAuthErrorMessage(error) };
       }
 
       if (data.user) {

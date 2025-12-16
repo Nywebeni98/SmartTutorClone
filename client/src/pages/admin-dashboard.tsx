@@ -20,10 +20,11 @@ import {
 import type { TutorProfile, BookingPayment, Pricing, Availability } from '@shared/schema';
 
 // Featured tutors that admin can manage availability for
+// These IDs must match the tutor IDs in TutorsSection.tsx
 const FEATURED_TUTORS = [
   { id: 'siyanda-stekela', name: 'Siyanda Stekela', meetUrl: 'https://meet.google.com/auv-hbbs-nre' },
-  { id: 'siboniso-myeni', name: 'Siboniso Myeni', meetUrl: 'https://meet.google.com/krq-nbsr-gnh' },
-  { id: 'thamsanqa-nkosi', name: 'Thamsanqa Nkosi', meetUrl: 'https://meet.google.com/tha-msanqa-meet' },
+  { id: 'siboniso-shandu', name: 'Siboniso Shandu', meetUrl: 'https://meet.google.com/krq-nbsr-gnh' },
+  { id: 'thamsanqa-ngonyama', name: 'Thamsanqa Charles Ngonyama', meetUrl: 'https://meet.google.com/tha-msanqa-meet' },
 ];
 
 export default function AdminDashboard() {

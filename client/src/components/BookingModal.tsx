@@ -50,38 +50,36 @@ export function BookingModal({ isOpen, onClose, tutor }: BookingModalProps) {
 
   // Mutation to create booking token before payment
   const createTokenMutation = useMutation({
-    mutationFn: async (data: { tutorId: string; availabilityId: string; subject: string; hours: number; amount: number }) => {
-      return apiRequest('POST', '/api/booking/create-token', data);
+    mutationFn: async (data: { tutorId: string; availabilityId: string; subject: string; hours: number; amount: number; paymentUrl: string }) => {
+      return apiRequest('POST', '/api/booking/create-token', {
+        tutorId: data.tutorId,
+        availabilityId: data.availabilityId,
+        subject: data.subject,
+        hours: data.hours,
+        amount: data.amount,
+      });
     },
     onSuccess: (data: any, variables) => {
       if (data.token) {
-        // Get the payment link for selected subject and hours
-        const paymentInfo = PAYMENT_LINKS[subject]?.[hours];
-        if (!paymentInfo) {
-          toast({
-            title: 'Error',
-            description: 'Invalid subject or duration selection.',
-            variant: 'destructive',
-          });
-          return;
-        }
-
+        // Use variables from mutation call to avoid stale closure issues
+        const { subject: mutationSubject, hours: mutationHours, amount: mutationAmount, paymentUrl } = variables;
+        
         // Store booking info and token in sessionStorage for after payment
         const bookingInfo = {
           bookingToken: data.token,
           tutorId: tutor?.id,
           tutorName: tutor?.fullName,
           tutorMeetLink: tutor?.googleMeetUrl,
-          availabilityId: selectedSlot,
-          subject,
-          hours: parseInt(hours),
-          amount: paymentInfo.amount,
-          selectedSlotDetails: availabilities.find(s => s.id === selectedSlot),
+          availabilityId: variables.availabilityId,
+          subject: mutationSubject,
+          hours: mutationHours,
+          amount: mutationAmount,
+          selectedSlotDetails: availabilities.find(s => s.id === variables.availabilityId),
         };
         sessionStorage.setItem('pendingBooking', JSON.stringify(bookingInfo));
 
         // Redirect to Yoco payment link
-        window.location.href = paymentInfo.url;
+        window.location.href = paymentUrl;
       }
     },
     onError: (error: any) => {
@@ -121,6 +119,7 @@ export function BookingModal({ isOpen, onClose, tutor }: BookingModalProps) {
       subject,
       hours: parseInt(hours),
       amount: paymentInfo.amount,
+      paymentUrl: paymentInfo.url,
     });
   };
 

@@ -63,6 +63,63 @@ export class MemStorage implements IStorage {
     
     // Initialize default pricing
     this.initializeDefaultPricing();
+    // Initialize featured tutors so they exist for booking
+    this.initializeFeaturedTutors();
+  }
+  
+  private initializeFeaturedTutors() {
+    // These IDs must match the tutor IDs in TutorsSection.tsx
+    const featuredTutors: TutorProfile[] = [
+      {
+        id: 'siyanda-stekela',
+        supabaseUserId: 'siyanda-stekela',
+        fullName: 'Siyanda Stekela',
+        email: 'siyanda@besmartonline.co.za',
+        bio: 'Professional Mathematics tutor with over 9 years of tutoring experience.',
+        subjects: ['Maths', 'CAPS Curriculum', 'Cambridge Curriculum'],
+        hourlyRate: 200,
+        photoUrl: null,
+        googleMeetUrl: 'https://meet.google.com/auv-hbbs-nre',
+        isApproved: true,
+        isBlocked: false,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+      {
+        id: 'siboniso-shandu',
+        supabaseUserId: 'siboniso-shandu',
+        fullName: 'Siboniso Shandu',
+        email: 'siboniso@besmartonline.co.za',
+        bio: 'Dedicated tutor in Mathematics and Physical Sciences with over 8 years of experience.',
+        subjects: ['Mathematics', 'Physical Sciences'],
+        hourlyRate: 200,
+        photoUrl: null,
+        googleMeetUrl: 'https://meet.google.com/krq-nbsr-gnh',
+        isApproved: true,
+        isBlocked: false,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+      {
+        id: 'thamsanqa-ngonyama',
+        supabaseUserId: 'thamsanqa-ngonyama',
+        fullName: 'Thamsanqa Charles Ngonyama',
+        email: 'thamsanqa@besmartonline.co.za',
+        bio: 'Qualified educator specializing in English, History, and CAT.',
+        subjects: ['English', 'History', 'CAT'],
+        hourlyRate: 200,
+        photoUrl: null,
+        googleMeetUrl: 'https://meet.google.com/tha-msanqa-meet',
+        isApproved: true,
+        isBlocked: false,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+    ];
+    
+    for (const tutor of featuredTutors) {
+      this.tutorProfiles.set(tutor.id, tutor);
+    }
   }
   
   private initializeDefaultPricing() {

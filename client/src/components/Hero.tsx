@@ -1,4 +1,4 @@
-// Hero section showcasing Be Smart Online Tutorials for Khayelitsha, Cape Town
+// Hero section showcasing Be Smart Online Tutorials for Cape Town, South Africa
 import { Button } from '@/components/ui/button';
 import { GraduationCap, BookOpen } from 'lucide-react';
 
@@ -32,7 +32,7 @@ export function Hero() {
           <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-md rounded-full border border-white/20" data-testid="badge-location">
             <GraduationCap className="w-5 h-5 text-white" />
             <span className="text-white text-sm font-medium" data-testid="text-location">
-              Serving Khayelitsha, Cape Town
+              Serving Cape Town, South Africa
             </span>
           </div>
 
@@ -56,7 +56,7 @@ export function Hero() {
             data-testid="text-hero-subheadline"
           >
             Quality, affordable tutoring in Mathematics, Science, English, and more. 
-            Empowering Khayelitsha students to achieve academic excellence.
+            Empowering students to achieve academic excellence.
           </p>
 
           {/* Call-to-action buttons */}

@@ -43,7 +43,7 @@ export function AboutSection() {
                 className="text-lg leading-relaxed text-foreground"
                 data-testid="text-about-mission"
               >
-                We believe every student in Khayelitsha deserves access to quality education. 
+                We believe every student deserves access to quality education. 
                 Our mission is to empower learners with the knowledge, skills, and confidence 
                 they need to excel academically and unlock their full potential.
               </p>
@@ -73,10 +73,10 @@ export function AboutSection() {
                     style={{ color: 'hsl(var(--brand-yellow))' }}
                     data-testid="text-location-heading"
                   >
-                    Proudly Serving Khayelitsha
+                    Proudly Serving Cape Town
                   </h3>
                   <p className="text-muted-foreground leading-relaxed">
-                    Located in the heart of Khayelitsha, Cape Town, we're committed to 
+                    Based in Cape Town, South Africa, we're committed to 
                     building a brighter future for our community through education.
                   </p>
                 </div>

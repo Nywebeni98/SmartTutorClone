@@ -1,5 +1,5 @@
 // Footer component with links, contact info, and social media
-import { MapPin, Phone, Mail, Facebook, Instagram, Twitter } from 'lucide-react';
+import { MapPin, Facebook, Instagram, Twitter } from 'lucide-react';
 import logoUrl from '@assets/Blue Minimal Idea Free Education Logo_1764023278343.png';
 
 export function Footer() {
@@ -57,7 +57,7 @@ export function Footer() {
               </div>
             </div>
             <p className="text-sm text-muted-foreground leading-relaxed">
-              Quality tutoring services in Khayelitsha, Cape Town. 
+              Quality tutoring services in Cape Town, South Africa. 
               Empowering students to achieve academic excellence.
             </p>
             {/* Social media icons */}
@@ -155,25 +155,7 @@ export function Footer() {
                   style={{ color: 'hsl(var(--brand-orange))' }}
                 />
                 <span className="text-sm text-muted-foreground">
-                  Khayelitsha, Cape Town, South Africa
-                </span>
-              </li>
-              <li className="flex items-start gap-3">
-                <Phone 
-                  className="w-5 h-5 flex-shrink-0 mt-0.5" 
-                  style={{ color: 'hsl(var(--brand-orange))' }}
-                />
-                <span className="text-sm text-muted-foreground">
-                  +27 (0) 21 XXX XXXX
-                </span>
-              </li>
-              <li className="flex items-start gap-3">
-                <Mail 
-                  className="w-5 h-5 flex-shrink-0 mt-0.5" 
-                  style={{ color: 'hsl(var(--brand-orange))' }}
-                />
-                <span className="text-sm text-muted-foreground">
-                  info@besmarttutorials.co.za
+                  Cape Town, South Africa
                 </span>
               </li>
             </ul>
@@ -197,7 +179,7 @@ export function Footer() {
                 className="font-semibold"
                 style={{ color: 'hsl(var(--brand-orange))' }}
               >
-                Khayelitsha, Cape Town
+                Cape Town, South Africa
               </span>
             </p>
           </div>

@@ -1,11 +1,11 @@
-// Contact section with Khayelitsha location information and contact form
+// Contact section with Cape Town location information and contact form
 import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { MapPin, Phone, Mail, Send } from 'lucide-react';
+import { MapPin, Send } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { apiRequest } from '@/lib/queryClient';
 import type { InsertContactSubmission } from '@shared/schema';
@@ -62,28 +62,14 @@ export function ContactSection() {
     }
   };
 
-  // Contact information data
+  // Contact information data - only showing location
   const contactInfo = [
     {
       icon: MapPin,
       title: 'Location',
-      content: 'Khayelitsha, Cape Town, South Africa',
+      content: 'Cape Town, South Africa',
       color: 'hsl(var(--brand-blue))',
       bgColor: 'hsl(var(--brand-blue) / 0.2)',
-    },
-    {
-      icon: Phone,
-      title: 'Phone',
-      content: '+27 (0) 21 XXX XXXX',
-      color: 'hsl(var(--brand-yellow))',
-      bgColor: 'hsl(var(--brand-yellow) / 0.2)',
-    },
-    {
-      icon: Mail,
-      title: 'Email',
-      content: 'info@besmarttutorials.co.za',
-      color: 'hsl(var(--brand-orange))',
-      bgColor: 'hsl(var(--brand-orange) / 0.2)',
     },
   ];
 
@@ -300,7 +286,7 @@ export function ContactSection() {
             >
               <p className="text-center text-muted-foreground leading-relaxed">
                 <span className="font-semibold" style={{ color: 'hsl(var(--brand-blue))' }}>
-                  Proudly serving the Khayelitsha community.
+                  Proudly serving students in Cape Town.
                 </span>
                 <br />
                 Together, we're building a brighter future through education.

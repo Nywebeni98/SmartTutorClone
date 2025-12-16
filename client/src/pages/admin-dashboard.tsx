@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { queryClient, apiRequest } from '@/lib/queryClient';
@@ -7,17 +8,37 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { 
   Users, BookOpen, DollarSign, ShieldCheck, LogOut, 
   CheckCircle, XCircle, Ban, UserCheck, Loader2, AlertCircle,
-  Mail, Calendar, Clock
+  Mail, Calendar, Clock, Plus, Trash2, CalendarDays
 } from 'lucide-react';
-import type { TutorProfile, BookingPayment, Pricing } from '@shared/schema';
+import type { TutorProfile, BookingPayment, Pricing, Availability } from '@shared/schema';
+
+// Featured tutors that admin can manage availability for
+const FEATURED_TUTORS = [
+  { id: 'siyanda-stekela', name: 'Siyanda Stekela', meetUrl: 'https://meet.google.com/auv-hbbs-nre' },
+  { id: 'siboniso-myeni', name: 'Siboniso Myeni', meetUrl: 'https://meet.google.com/krq-nbsr-gnh' },
+  { id: 'thamsanqa-nkosi', name: 'Thamsanqa Nkosi', meetUrl: 'https://meet.google.com/tha-msanqa-meet' },
+];
 
 export default function AdminDashboard() {
   const { isAdmin, adminSignOut, userRole, getAdminToken } = useAuth();
   const { toast } = useToast();
   const [, setLocation] = useLocation();
+  
+  // Availability management state
+  const [addSlotDialogOpen, setAddSlotDialogOpen] = useState(false);
+  const [selectedTutor, setSelectedTutor] = useState('');
+  const [slotDate, setSlotDate] = useState('');
+  const [slotStartTime, setSlotStartTime] = useState('');
+  const [slotEndTime, setSlotEndTime] = useState('');
+  const [slotNotes, setSlotNotes] = useState('');
+  const [filterTutor, setFilterTutor] = useState('all');
 
   const { data: tutorProfiles = [], isLoading: loadingTutors } = useQuery<TutorProfile[]>({
     queryKey: ['/api/tutor-profiles'],
@@ -31,6 +52,11 @@ export default function AdminDashboard() {
 
   const { data: pricing = [], isLoading: loadingPricing } = useQuery<Pricing[]>({
     queryKey: ['/api/pricing'],
+    enabled: isAdmin,
+  });
+
+  const { data: availabilities = [], isLoading: loadingAvailabilities } = useQuery<Availability[]>({
+    queryKey: ['/api/availability'],
     enabled: isAdmin,
   });
 
@@ -87,6 +113,78 @@ export default function AdminDashboard() {
       toast({ title: 'Error', description: error.message || 'Failed to update tutor status.', variant: 'destructive' });
     },
   });
+
+  // Create availability slot mutation
+  const createAvailabilityMutation = useMutation({
+    mutationFn: async (data: { tutorId: string; day: string; date: string; startTime: string; endTime: string; notes?: string }) => {
+      return apiRequest('POST', '/api/availability', data);
+    },
+    onSuccess: () => {
+      toast({ title: 'Slot Added', description: 'Availability slot has been added successfully.' });
+      queryClient.invalidateQueries({ queryKey: ['/api/availability'] });
+      setAddSlotDialogOpen(false);
+      resetSlotForm();
+    },
+    onError: (error: Error) => {
+      toast({ title: 'Error', description: error.message || 'Failed to add availability slot.', variant: 'destructive' });
+    },
+  });
+
+  // Delete availability slot mutation
+  const deleteAvailabilityMutation = useMutation({
+    mutationFn: async (id: string) => {
+      return apiRequest('DELETE', `/api/availability/${id}`);
+    },
+    onSuccess: () => {
+      toast({ title: 'Slot Removed', description: 'Availability slot has been removed.' });
+      queryClient.invalidateQueries({ queryKey: ['/api/availability'] });
+    },
+    onError: (error: Error) => {
+      toast({ title: 'Error', description: error.message || 'Failed to remove availability slot.', variant: 'destructive' });
+    },
+  });
+
+  const resetSlotForm = () => {
+    setSelectedTutor('');
+    setSlotDate('');
+    setSlotStartTime('');
+    setSlotEndTime('');
+    setSlotNotes('');
+  };
+
+  const handleAddSlot = () => {
+    if (!selectedTutor || !slotDate || !slotStartTime || !slotEndTime) {
+      toast({ title: 'Missing Information', description: 'Please fill in all required fields.', variant: 'destructive' });
+      return;
+    }
+
+    const dateObj = new Date(slotDate);
+    const dayName = dateObj.toLocaleDateString('en-US', { weekday: 'long' });
+    const formattedDate = dateObj.toLocaleDateString('en-ZA', { day: 'numeric', month: 'long', year: 'numeric' });
+
+    createAvailabilityMutation.mutate({
+      tutorId: selectedTutor,
+      day: dayName,
+      date: formattedDate,
+      startTime: slotStartTime,
+      endTime: slotEndTime,
+      notes: slotNotes || undefined,
+    });
+  };
+
+  // Filter and sort availabilities
+  const filteredAvailabilities = availabilities
+    .filter(slot => filterTutor === 'all' || slot.tutorId === filterTutor)
+    .sort((a, b) => {
+      const dateA = a.date ? new Date(a.date) : new Date();
+      const dateB = b.date ? new Date(b.date) : new Date();
+      return dateA.getTime() - dateB.getTime();
+    });
+
+  const getTutorName = (tutorId: string) => {
+    const featured = FEATURED_TUTORS.find(t => t.id === tutorId);
+    return featured?.name || tutorId;
+  };
 
   const handleSignOut = () => {
     adminSignOut();
@@ -190,8 +288,12 @@ export default function AdminDashboard() {
           </Card>
         </div>
 
-        <Tabs defaultValue="tutors" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-3 max-w-md">
+        <Tabs defaultValue="availability" className="space-y-6">
+          <TabsList className="grid w-full grid-cols-4 max-w-lg">
+            <TabsTrigger value="availability" data-testid="tab-availability">
+              <CalendarDays className="h-4 w-4 mr-1" />
+              Availability
+            </TabsTrigger>
             <TabsTrigger value="tutors" data-testid="tab-tutors">
               Tutors
               {pendingTutors.length > 0 && (
@@ -203,6 +305,111 @@ export default function AdminDashboard() {
             <TabsTrigger value="bookings" data-testid="tab-bookings">Bookings</TabsTrigger>
             <TabsTrigger value="pricing" data-testid="tab-pricing">Pricing</TabsTrigger>
           </TabsList>
+
+          <TabsContent value="availability" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                  <div>
+                    <CardTitle className="flex items-center gap-2">
+                      <CalendarDays className="h-5 w-5" />
+                      Tutor Availability Management
+                    </CardTitle>
+                    <CardDescription>
+                      Add and manage available time slots for tutors
+                    </CardDescription>
+                  </div>
+                  <Button
+                    onClick={() => setAddSlotDialogOpen(true)}
+                    data-testid="button-add-availability"
+                  >
+                    <Plus className="h-4 w-4 mr-2" />
+                    Add Time Slot
+                  </Button>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="mb-4">
+                  <Label htmlFor="filter-tutor" className="text-sm">Filter by Tutor</Label>
+                  <Select value={filterTutor} onValueChange={setFilterTutor}>
+                    <SelectTrigger id="filter-tutor" className="w-full md:w-64 mt-1" data-testid="select-filter-tutor">
+                      <SelectValue placeholder="All Tutors" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Tutors</SelectItem>
+                      {FEATURED_TUTORS.map((tutor) => (
+                        <SelectItem key={tutor.id} value={tutor.id}>
+                          {tutor.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {loadingAvailabilities ? (
+                  <div className="flex items-center justify-center py-8">
+                    <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+                  </div>
+                ) : filteredAvailabilities.length === 0 ? (
+                  <div className="text-center py-8 text-muted-foreground">
+                    <Calendar className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                    <p>No availability slots configured.</p>
+                    <p className="text-sm">Click "Add Time Slot" to create availability for tutors.</p>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {filteredAvailabilities.map((slot) => (
+                      <Card 
+                        key={slot.id} 
+                        className={slot.isBooked ? 'opacity-60' : ''}
+                        data-testid={`availability-slot-${slot.id}`}
+                      >
+                        <CardContent className="pt-4">
+                          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                            <div className="flex-1">
+                              <div className="flex items-center gap-2 mb-2">
+                                <Badge variant="outline">{getTutorName(slot.tutorId)}</Badge>
+                                {slot.isBooked && (
+                                  <Badge variant="secondary" className="bg-green-100 text-green-700">
+                                    Booked
+                                  </Badge>
+                                )}
+                              </div>
+                              <div className="flex flex-wrap items-center gap-4 text-sm">
+                                <div className="flex items-center gap-1">
+                                  <Calendar className="h-4 w-4 text-muted-foreground" />
+                                  <span>{slot.day}</span>
+                                  {slot.date && <span className="text-muted-foreground">({slot.date})</span>}
+                                </div>
+                                <div className="flex items-center gap-1">
+                                  <Clock className="h-4 w-4 text-muted-foreground" />
+                                  <span>{slot.startTime} - {slot.endTime}</span>
+                                </div>
+                              </div>
+                              {slot.notes && (
+                                <p className="text-sm text-muted-foreground mt-1">{slot.notes}</p>
+                              )}
+                            </div>
+                            {!slot.isBooked && (
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => deleteAvailabilityMutation.mutate(slot.id)}
+                                disabled={deleteAvailabilityMutation.isPending}
+                                data-testid={`button-delete-slot-${slot.id}`}
+                              >
+                                <Trash2 className="h-4 w-4 text-destructive" />
+                              </Button>
+                            )}
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
 
           <TabsContent value="tutors" className="space-y-6">
             {pendingTutors.length > 0 && (
@@ -460,6 +667,105 @@ export default function AdminDashboard() {
           </TabsContent>
         </Tabs>
       </main>
+
+      {/* Add Availability Slot Dialog */}
+      <Dialog open={addSlotDialogOpen} onOpenChange={setAddSlotDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Plus className="h-5 w-5" />
+              Add Availability Slot
+            </DialogTitle>
+            <DialogDescription>
+              Create a new time slot for a tutor
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="slot-tutor">Select Tutor</Label>
+              <Select value={selectedTutor} onValueChange={setSelectedTutor}>
+                <SelectTrigger id="slot-tutor" data-testid="select-slot-tutor">
+                  <SelectValue placeholder="Choose a tutor" />
+                </SelectTrigger>
+                <SelectContent>
+                  {FEATURED_TUTORS.map((tutor) => (
+                    <SelectItem key={tutor.id} value={tutor.id}>
+                      {tutor.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="slot-date">Date</Label>
+              <Input
+                id="slot-date"
+                type="date"
+                value={slotDate}
+                onChange={(e) => setSlotDate(e.target.value)}
+                min={new Date().toISOString().split('T')[0]}
+                data-testid="input-slot-date"
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="slot-start">Start Time</Label>
+                <Input
+                  id="slot-start"
+                  type="time"
+                  value={slotStartTime}
+                  onChange={(e) => setSlotStartTime(e.target.value)}
+                  data-testid="input-slot-start"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="slot-end">End Time</Label>
+                <Input
+                  id="slot-end"
+                  type="time"
+                  value={slotEndTime}
+                  onChange={(e) => setSlotEndTime(e.target.value)}
+                  data-testid="input-slot-end"
+                />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="slot-notes">Notes (Optional)</Label>
+              <Input
+                id="slot-notes"
+                placeholder="e.g., Maths revision session"
+                value={slotNotes}
+                onChange={(e) => setSlotNotes(e.target.value)}
+                data-testid="input-slot-notes"
+              />
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => { setAddSlotDialogOpen(false); resetSlotForm(); }}>
+              Cancel
+            </Button>
+            <Button
+              onClick={handleAddSlot}
+              disabled={!selectedTutor || !slotDate || !slotStartTime || !slotEndTime || createAvailabilityMutation.isPending}
+              data-testid="button-confirm-add-slot"
+            >
+              {createAvailabilityMutation.isPending ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Adding...
+                </>
+              ) : (
+                'Add Slot'
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

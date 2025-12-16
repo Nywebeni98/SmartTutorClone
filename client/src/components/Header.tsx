@@ -11,7 +11,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { TutorAuthModal } from '@/components/TutorAuthModal';
 import { AdminAuthModal } from '@/components/AdminAuthModal';
 import { useLocation } from 'wouter';
 import logoUrl from '@assets/Blue Minimal Idea Free Education Logo_1764023278343.png';
@@ -19,7 +18,6 @@ import logoUrl from '@assets/Blue Minimal Idea Free Education Logo_1764023278343
 export function Header() {
   const { user, userRole, tutorProfile, signInWithGoogle, signOut } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [tutorAuthOpen, setTutorAuthOpen] = useState(false);
   const [adminAuthOpen, setAdminAuthOpen] = useState(false);
   const [, setLocation] = useLocation();
 
@@ -137,24 +135,15 @@ export function Header() {
                   Student Sign In
                 </Button>
                 
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="outline" size="sm" data-testid="button-more-signin">
-                      More
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuItem onClick={() => setTutorAuthOpen(true)} data-testid="button-tutor-signin">
-                      <GraduationCap className="h-4 w-4 mr-2" />
-                      Tutor Sign In
-                    </DropdownMenuItem>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={() => setAdminAuthOpen(true)} data-testid="button-admin-login">
-                      <ShieldCheck className="h-4 w-4 mr-2" />
-                      Admin Login
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setAdminAuthOpen(true)}
+                  data-testid="button-admin-login"
+                >
+                  <ShieldCheck className="h-4 w-4 mr-2" />
+                  Admin
+                </Button>
               </div>
             )}
           </div>
@@ -236,15 +225,6 @@ export function Header() {
                     Student Sign In
                   </Button>
                   <Button
-                    onClick={() => { setTutorAuthOpen(true); setMobileMenuOpen(false); }}
-                    variant="outline"
-                    className="w-full"
-                    data-testid="button-mobile-tutor-signin"
-                  >
-                    <GraduationCap className="h-4 w-4 mr-2" />
-                    Tutor Sign In
-                  </Button>
-                  <Button
                     onClick={() => { setAdminAuthOpen(true); setMobileMenuOpen(false); }}
                     variant="ghost"
                     className="w-full"
@@ -261,7 +241,6 @@ export function Header() {
       )}
 
       {/* Auth Modals */}
-      <TutorAuthModal isOpen={tutorAuthOpen} onClose={() => setTutorAuthOpen(false)} />
       <AdminAuthModal isOpen={adminAuthOpen} onClose={() => setAdminAuthOpen(false)} />
     </header>
   );

@@ -10,12 +10,26 @@ import { Loader2, CreditCard, Calendar, Clock, User, BookOpen } from 'lucide-rea
 import type { TutorProfile, Availability } from '@shared/schema';
 
 // Fixed Yoco payment links based on subject and duration
+// Maths, English, History, CAT = R200/hr (use same Yoco links)
+// Physical Sciences = R250/hr
 const PAYMENT_LINKS: Record<string, Record<string, { amount: number; url: string }>> = {
-  'General Tutoring': {
+  'Maths': {
     '1': { amount: 200, url: 'https://pay.yoco.com/r/4GQxeA' },
     '2': { amount: 400, url: 'https://pay.yoco.com/r/25ZL1w' },
   },
-  'Physics': {
+  'English': {
+    '1': { amount: 200, url: 'https://pay.yoco.com/r/4GQxeA' },
+    '2': { amount: 400, url: 'https://pay.yoco.com/r/25ZL1w' },
+  },
+  'History': {
+    '1': { amount: 200, url: 'https://pay.yoco.com/r/4GQxeA' },
+    '2': { amount: 400, url: 'https://pay.yoco.com/r/25ZL1w' },
+  },
+  'CAT': {
+    '1': { amount: 200, url: 'https://pay.yoco.com/r/4GQxeA' },
+    '2': { amount: 400, url: 'https://pay.yoco.com/r/25ZL1w' },
+  },
+  'Physical Sciences': {
     '1': { amount: 250, url: 'https://pay.yoco.com/r/2PDlRK' },
     '2': { amount: 500, url: 'https://pay.yoco.com/r/7KvqDV' },
   },
@@ -40,13 +54,36 @@ export function BookingModal({ isOpen, onClose, tutor }: BookingModalProps) {
 
   const availableSlots = availabilities.filter(slot => !slot.isBooked);
 
-  // If tutor teaches subjects not in our pricing, default to General Tutoring
-  const hasPhysics = tutor?.subjects?.some(s => 
-    s.toLowerCase().includes('physics') || s.toLowerCase().includes('physical science')
-  );
-  const subjectOptions = hasPhysics 
-    ? ['General Tutoring', 'Physics'] 
-    : ['General Tutoring'];
+  // Get subject options based on what the tutor actually teaches
+  // Map tutor subjects to our supported payment subjects
+  const getSubjectOptions = () => {
+    if (!tutor?.subjects) return [];
+    
+    const supportedSubjects: string[] = [];
+    
+    tutor.subjects.forEach(s => {
+      const lower = s.toLowerCase();
+      if (lower.includes('maths') || lower.includes('mathematics')) {
+        if (!supportedSubjects.includes('Maths')) supportedSubjects.push('Maths');
+      }
+      if (lower.includes('physical science')) {
+        if (!supportedSubjects.includes('Physical Sciences')) supportedSubjects.push('Physical Sciences');
+      }
+      if (lower.includes('english')) {
+        if (!supportedSubjects.includes('English')) supportedSubjects.push('English');
+      }
+      if (lower.includes('history')) {
+        if (!supportedSubjects.includes('History')) supportedSubjects.push('History');
+      }
+      if (lower.includes('cat') || lower.includes('computer')) {
+        if (!supportedSubjects.includes('CAT')) supportedSubjects.push('CAT');
+      }
+    });
+    
+    return supportedSubjects;
+  };
+  
+  const subjectOptions = getSubjectOptions();
 
   // Mutation to create booking token before payment
   const createTokenMutation = useMutation({

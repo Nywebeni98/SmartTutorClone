@@ -3,6 +3,68 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { insertContactSchema, insertAppointmentSchema, insertAvailabilitySchema, insertTutorProfileSchema, insertBookingPaymentSchema, passwordSchema } from "@shared/schema";
 import { fromZodError } from "zod-validation-error";
+import { Resend } from 'resend';
+
+// Initialize Resend for email notifications
+const resend = new Resend(process.env.RESEND_API_KEY);
+const NOTIFICATION_EMAIL = 'onlinepresenceimpact@gmail.com';
+
+// Helper function to send booking notification email
+async function sendBookingNotificationEmail(booking: {
+  studentName: string;
+  studentEmail: string;
+  studentPhone: string | null;
+  tutorName: string;
+  subject: string;
+  hours: number;
+  amount: number;
+  slotDate?: string;
+  slotTime?: string;
+  meetingLink?: string | null;
+}) {
+  try {
+    if (!process.env.RESEND_API_KEY) {
+      console.log('RESEND_API_KEY not configured, skipping email notification');
+      return;
+    }
+
+    const { data, error } = await resend.emails.send({
+      from: 'Be Smart Tutorials <onboarding@resend.dev>',
+      to: [NOTIFICATION_EMAIL],
+      subject: `New Booking: ${booking.studentName} - ${booking.subject}`,
+      html: `
+        <h2>New Tutoring Session Booked!</h2>
+        <p><strong>Student Details:</strong></p>
+        <ul>
+          <li><strong>Name:</strong> ${booking.studentName}</li>
+          <li><strong>Email:</strong> ${booking.studentEmail}</li>
+          <li><strong>Phone:</strong> ${booking.studentPhone || 'Not provided'}</li>
+        </ul>
+        <p><strong>Session Details:</strong></p>
+        <ul>
+          <li><strong>Tutor:</strong> ${booking.tutorName}</li>
+          <li><strong>Subject:</strong> ${booking.subject}</li>
+          <li><strong>Duration:</strong> ${booking.hours} hour(s)</li>
+          <li><strong>Amount Paid:</strong> R${booking.amount}</li>
+          ${booking.slotDate ? `<li><strong>Date:</strong> ${booking.slotDate}</li>` : ''}
+          ${booking.slotTime ? `<li><strong>Time:</strong> ${booking.slotTime}</li>` : ''}
+          ${booking.meetingLink ? `<li><strong>Google Meet Link:</strong> <a href="https://meet.google.com/${booking.meetingLink}">https://meet.google.com/${booking.meetingLink}</a></li>` : ''}
+        </ul>
+        <p>Please reach out to the student to confirm the session.</p>
+        <hr>
+        <p style="color: #666; font-size: 12px;">This email was sent automatically by Be Smart Online Tutorials booking system.</p>
+      `,
+    });
+
+    if (error) {
+      console.error('Failed to send booking notification email:', error);
+    } else {
+      console.log('Booking notification email sent successfully:', data?.id);
+    }
+  } catch (err) {
+    console.error('Error sending booking notification email:', err);
+  }
+}
 
 // Admin credentials
 const ADMIN_USERNAME = process.env.ADMIN_USERNAME || 'Lisa98';
@@ -878,12 +940,35 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
 
       // Mark availability as booked if provided
+      let slotDate: string | undefined;
+      let slotTime: string | undefined;
       if (pendingBooking.availabilityId) {
         await storage.updateAvailability(pendingBooking.availabilityId, { isBooked: true });
+        // Get slot details for email
+        const availabilities = await storage.getAvailabilitiesByTutor(pendingBooking.tutorId);
+        const slot = availabilities.find(a => a.id === pendingBooking.availabilityId);
+        if (slot) {
+          slotDate = slot.date ?? undefined;
+          slotTime = `${slot.startTime} - ${slot.endTime}`;
+        }
       }
 
       // Delete the used token (one-time use)
       pendingBookingTokens.delete(bookingToken);
+
+      // Send booking notification email to admin
+      sendBookingNotificationEmail({
+        studentName,
+        studentEmail,
+        studentPhone: studentPhone || null,
+        tutorName: tutorProfile?.fullName || 'Unknown Tutor',
+        subject: pendingBooking.subject,
+        hours: pendingBooking.hours,
+        amount: pendingBooking.amount,
+        slotDate,
+        slotTime,
+        meetingLink,
+      });
 
       res.status(201).json({
         success: true,

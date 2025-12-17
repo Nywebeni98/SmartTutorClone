@@ -7,15 +7,14 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { MapPin, Send } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { apiRequest } from '@/lib/queryClient';
-import type { InsertContactSubmission } from '@shared/schema';
+
+const CONTACT_EMAIL = 'onlinepresenceimpact@gmail.com';
 
 export function ContactSection() {
   const { toast } = useToast();
-  const [isSubmitting, setIsSubmitting] = useState(false);
   
   // Form state
-  const [formData, setFormData] = useState<InsertContactSubmission>({
+  const [formData, setFormData] = useState({
     name: '',
     email: '',
     subject: '',
@@ -28,38 +27,34 @@ export function ContactSection() {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  // Handle form submission
-  const handleSubmit = async (e: React.FormEvent) => {
+  // Handle form submission using mailto
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setIsSubmitting(true);
-
-    try {
-      // Submit contact form data to backend
-      await apiRequest('POST', '/api/contact', formData);
-      
-      // Show success message
+    
+    // Validate form fields
+    if (!formData.name || !formData.email || !formData.subject || !formData.message) {
       toast({
-        title: 'Message sent successfully!',
-        description: 'We\'ll get back to you as soon as possible.',
-      });
-      
-      // Reset form
-      setFormData({
-        name: '',
-        email: '',
-        subject: '',
-        message: '',
-      });
-    } catch (error) {
-      // Show error message
-      toast({
-        title: 'Error sending message',
-        description: 'Please try again later or contact us directly.',
+        title: 'Please fill in all fields',
+        description: 'All fields are required to send a message.',
         variant: 'destructive',
       });
-    } finally {
-      setIsSubmitting(false);
+      return;
     }
+
+    // Build the mailto link with form data
+    const mailtoSubject = encodeURIComponent(formData.subject);
+    const mailtoBody = encodeURIComponent(
+      `Name: ${formData.name}\nEmail: ${formData.email}\n\nMessage:\n${formData.message}`
+    );
+    
+    // Open email client with pre-filled message
+    window.location.href = `mailto:${CONTACT_EMAIL}?subject=${mailtoSubject}&body=${mailtoBody}`;
+    
+    // Show success message
+    toast({
+      title: 'Opening your email client...',
+      description: 'Your email client should open with the message ready to send.',
+    });
   };
 
   // Contact information data - only showing location
@@ -184,7 +179,6 @@ export function ContactSection() {
                 <Button
                   type="submit"
                   size="lg"
-                  disabled={isSubmitting}
                   className="w-full text-base font-semibold"
                   style={{
                     backgroundColor: 'hsl(var(--brand-yellow))',
@@ -192,14 +186,8 @@ export function ContactSection() {
                   }}
                   data-testid="button-submit"
                 >
-                  {isSubmitting ? (
-                    <>Sending...</>
-                  ) : (
-                    <>
-                      <Send className="w-5 h-5 mr-2" />
-                      Send Message
-                    </>
-                  )}
+                  <Send className="w-5 h-5 mr-2" />
+                  Send Message
                 </Button>
               </form>
             </CardContent>

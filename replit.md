@@ -12,13 +12,17 @@ Preferred communication style: Simple, everyday language.
 
 ## Pending Features / Notes
 
-### Email Notifications (Not Yet Configured)
-- **Status:** Email integration (Resend) was offered but declined by user
-- **Goal:** Send booking notifications to onlinepresenceimpact@gmail.com when students complete bookings
-- **Alternative:** If user wants email notifications in the future, they can either:
-  1. Set up the Resend integration through Replit's integration system
-  2. Provide a Resend API key or other email service credentials to store as secrets
-- **Implementation location:** Would be added to `/api/booking-payments/complete` endpoint in `server/routes.ts`
+### Contact Form (Mailto Approach)
+- **Status:** Contact form uses mailto: link to open user's email client
+- **Recipient:** onlinepresenceimpact@gmail.com
+- **How it works:** When user fills out the contact form and clicks "Send Message", their email client opens with pre-filled subject and body
+
+### Booking Email Notifications (Resend Configured)
+- **Status:** Email notifications configured using Resend
+- **Secret:** RESEND_API_KEY stored in Replit Secrets
+- **Recipient:** onlinepresenceimpact@gmail.com
+- **Trigger:** When a student completes a booking via `/api/booking-payments/complete`
+- **Note:** Using free Resend plan with onboarding@resend.dev sender
 
 ## System Architecture
 

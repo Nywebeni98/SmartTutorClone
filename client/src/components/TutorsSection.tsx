@@ -141,23 +141,36 @@ export function TutorsSection() {
   };
 
   // Convert featured tutor to TutorProfile format for booking modal
+  // First check if there's a matching registered tutor to use the correct database ID
   const handleBookFeaturedTutor = (tutor: Tutor) => {
-    const tutorProfile: TutorProfile = {
-      id: tutor.id,
-      supabaseUserId: tutor.id,
-      fullName: tutor.name,
-      email: `${tutor.id}@besmartonline.co.za`,
-      bio: tutor.bio,
-      subjects: tutor.subjects,
-      hourlyRate: tutor.hourlyRate,
-      photoUrl: tutor.image,
-      googleMeetUrl: tutor.googleMeetUrl,
-      isApproved: true,
-      isBlocked: false,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    };
-    setBookingTutor(tutorProfile);
+    // Try to find matching registered tutor by name to get correct database ID
+    const matchingRegisteredTutor = approvedTutors.find(
+      t => t.fullName.toLowerCase() === tutor.name.toLowerCase() || 
+           t.supabaseUserId === tutor.id
+    );
+    
+    if (matchingRegisteredTutor) {
+      // Use the registered tutor data which has the correct database ID
+      setBookingTutor(matchingRegisteredTutor);
+    } else {
+      // Fallback to constructed profile (for tutors not in database)
+      const tutorProfile: TutorProfile = {
+        id: tutor.id,
+        supabaseUserId: tutor.id,
+        fullName: tutor.name,
+        email: `${tutor.id}@besmartonline.co.za`,
+        bio: tutor.bio,
+        subjects: tutor.subjects,
+        hourlyRate: tutor.hourlyRate,
+        photoUrl: tutor.image,
+        googleMeetUrl: tutor.googleMeetUrl,
+        isApproved: true,
+        isBlocked: false,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+      setBookingTutor(tutorProfile);
+    }
     setBookingModalOpen(true);
   };
 

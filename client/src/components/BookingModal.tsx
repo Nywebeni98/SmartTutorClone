@@ -83,16 +83,17 @@ export function BookingModal({ isOpen, onClose, tutor }: BookingModalProps) {
   // Mutation to create booking token before payment
   const createTokenMutation = useMutation({
     mutationFn: async (data: { tutorId: string; availabilityId: string; subject: string; hours: number; amount: number; paymentUrl: string }) => {
-      return apiRequest('POST', '/api/booking/create-token', {
+      const response = await apiRequest('POST', '/api/booking/create-token', {
         tutorId: data.tutorId,
         availabilityId: data.availabilityId,
         subject: data.subject,
         hours: data.hours,
         amount: data.amount,
       });
+      return response.json();
     },
     onSuccess: (data: any, variables) => {
-      if (data.token) {
+      if (data.success && data.token) {
         // Use variables from mutation call to avoid stale closure issues
         const { subject: mutationSubject, hours: mutationHours, amount: mutationAmount, paymentUrl } = variables;
         

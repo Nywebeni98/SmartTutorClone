@@ -98,6 +98,37 @@ export const appointments = pgTable("appointments", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
+// Payment links table - stores Yoco payment URLs
+export const paymentLinks = pgTable("payment_links", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  subject: text("subject").notNull(),
+  hours: integer("hours").notNull(),
+  amount: integer("amount").notNull(),
+  url: text("url").notNull(),
+  isActive: boolean("is_active").default(true),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+// Admin settings table - stores admin credentials (hashed)
+export const adminSettings = pgTable("admin_settings", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  username: text("username").notNull().unique(),
+  passwordHash: text("password_hash").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+// Action logs table - tracks all important actions
+export const actionLogs = pgTable("action_logs", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  actionType: text("action_type").notNull(), // 'booking_created', 'payment_clicked', 'slot_added', 'slot_removed', 'tutor_approved', etc.
+  description: text("description").notNull(),
+  userId: text("user_id"), // can be student email or admin username
+  metadata: text("metadata"), // JSON string for additional data
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
 // Zod schemas for validation
 export const insertContactSchema = createInsertSchema(contactSubmissions).omit({
   id: true,
@@ -209,3 +240,29 @@ export type InsertBookingPayment = z.infer<typeof insertBookingPaymentSchema>;
 export type BookingPayment = typeof bookingPayments.$inferSelect;
 export type TutorSignUp = z.infer<typeof tutorSignUpSchema>;
 export type TutorSignIn = z.infer<typeof tutorSignInSchema>;
+
+// Payment link types
+export type PaymentLink = typeof paymentLinks.$inferSelect;
+export type InsertPaymentLink = {
+  subject: string;
+  hours: number;
+  amount: number;
+  url: string;
+  isActive?: boolean;
+};
+
+// Admin settings types
+export type AdminSettings = typeof adminSettings.$inferSelect;
+export type InsertAdminSettings = {
+  username: string;
+  passwordHash: string;
+};
+
+// Action log types
+export type ActionLog = typeof actionLogs.$inferSelect;
+export type InsertActionLog = {
+  actionType: string;
+  description: string;
+  userId?: string | null;
+  metadata?: string | null;
+};

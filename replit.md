@@ -86,12 +86,11 @@ The application follows a single-page architecture with all sections on the home
 ### Data Storage
 
 **Current Implementation:**
-- In-memory storage (`MemStorage` class) for contact form submissions
-- Simple key-value Map structure with UUID-based IDs
-- Submissions stored with timestamp for chronological ordering
+- PostgreSQL database via Drizzle ORM (`DbStorage` class in `server/dbStorage.ts`)
+- All data persists across server restarts
+- Database connection via `DATABASE_URL` environment variable
 
 **Database Schema (PostgreSQL via Drizzle ORM):**
-The application is configured for PostgreSQL but currently uses in-memory storage:
 
 - **users table:** For Supabase authentication integration
   - Fields: id (UUID), email (unique), name
@@ -99,10 +98,32 @@ The application is configured for PostgreSQL but currently uses in-memory storag
 - **contact_submissions table:** For contact form data
   - Fields: id (UUID), name, email, subject, message, createdAt (timestamp)
 
+- **tutor_profiles table:** For tutor information
+  - Fields: id, supabaseUserId, email, fullName, photoUrl, subjects (array), hourlyRate, googleMeetUrl, bio, isApproved, isBlocked, createdAt, updatedAt
+
+- **tutor_availability table:** For time slots (stored permanently)
+  - Fields: id, tutorId, day, date, startTime, endTime, notes, isBooked, createdAt
+  - Note: Time slots persist until manually deleted
+
+- **booking_payments table:** For tracking student bookings
+  - Fields: id, studentName, studentEmail, studentPhone, tutorId, availabilityId, hours, amount, paymentStatus, yocoCheckoutId, meetingLink, createdAt
+
+- **payment_links table:** For Yoco payment URLs (stored in database)
+  - Fields: id, subject, hours, amount, url, isActive, createdAt, updatedAt
+  - Note: Admin can update payment links via API
+
+- **admin_settings table:** For admin credentials (password hashed)
+  - Fields: id, username, passwordHash, createdAt, updatedAt
+  - Note: Password is hashed using bcrypt (salted, 10 rounds) for security
+
+- **action_logs table:** For tracking all important actions
+  - Fields: id, actionType, description, userId, metadata (JSON), createdAt
+  - Tracks: bookings, payments, time slot changes, admin logins, tutor approvals
+
 **Migration Strategy:**
 - Drizzle Kit configured for PostgreSQL migrations
 - Schema defined in `shared/schema.ts` for type sharing between client and server
-- Connection via environment variable `DATABASE_URL`
+- Use `npm run db:push` to sync schema changes
 
 ### Authentication & Authorization
 
@@ -121,7 +142,8 @@ The application is configured for PostgreSQL but currently uses in-memory storag
    - Tutors must be approved by admin before appearing on the public site
 
 3. **Admin (Server-Side Token Authentication)**
-   - Fixed credentials validated server-side (default: Lisa98/Lisa98*#2025)
+   - Credentials stored in database (admin_settings table) with hashed password
+   - Default admin: Lisa98/Lisa98*#2025 (password is bcrypt hashed with salt)
    - Server issues session token stored in sessionStorage
    - Admin token required in `x-admin-token` header for admin operations
    - Can approve/block tutors, view bookings, and manage pricing

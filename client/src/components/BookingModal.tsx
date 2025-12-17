@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
@@ -7,33 +7,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { apiRequest } from '@/lib/queryClient';
 import { Loader2, CreditCard, Calendar, Clock, User, BookOpen } from 'lucide-react';
-import type { TutorProfile, Availability } from '@shared/schema';
-
-// Fixed Yoco payment links based on subject and duration
-// Maths, English, History, CAT = R200/hr (use same Yoco links)
-// Physical Sciences = R250/hr
-const PAYMENT_LINKS: Record<string, Record<string, { amount: number; url: string }>> = {
-  'Maths': {
-    '1': { amount: 200, url: 'https://pay.yoco.com/r/4GQxeA' },
-    '2': { amount: 400, url: 'https://pay.yoco.com/r/25ZL1w' },
-  },
-  'English': {
-    '1': { amount: 200, url: 'https://pay.yoco.com/r/4GQxeA' },
-    '2': { amount: 400, url: 'https://pay.yoco.com/r/25ZL1w' },
-  },
-  'History': {
-    '1': { amount: 200, url: 'https://pay.yoco.com/r/4GQxeA' },
-    '2': { amount: 400, url: 'https://pay.yoco.com/r/25ZL1w' },
-  },
-  'CAT': {
-    '1': { amount: 200, url: 'https://pay.yoco.com/r/4GQxeA' },
-    '2': { amount: 400, url: 'https://pay.yoco.com/r/25ZL1w' },
-  },
-  'Physical Sciences': {
-    '1': { amount: 250, url: 'https://pay.yoco.com/r/2PDlRK' },
-    '2': { amount: 500, url: 'https://pay.yoco.com/r/7KvqDV' },
-  },
-};
+import type { TutorProfile, Availability, PaymentLink } from '@shared/schema';
 
 interface BookingModalProps {
   isOpen: boolean;
@@ -46,6 +20,27 @@ export function BookingModal({ isOpen, onClose, tutor }: BookingModalProps) {
   const [selectedSlot, setSelectedSlot] = useState<string>('');
   const [hours, setHours] = useState<string>('1');
   const [subject, setSubject] = useState<string>('');
+
+  // Fetch payment links from database
+  const { data: paymentLinks = [] } = useQuery<PaymentLink[]>({
+    queryKey: ['/api/payment-links'],
+    enabled: isOpen,
+  });
+
+  // Build payment links lookup map from database data
+  const paymentLinksMap = useMemo(() => {
+    const map: Record<string, Record<string, { amount: number; url: string }>> = {};
+    paymentLinks.forEach(link => {
+      if (!map[link.subject]) {
+        map[link.subject] = {};
+      }
+      map[link.subject][link.hours.toString()] = {
+        amount: link.amount,
+        url: link.url,
+      };
+    });
+    return map;
+  }, [paymentLinks]);
 
   const { data: availabilities = [], isLoading: loadingSlots } = useQuery<Availability[]>({
     queryKey: ['/api/availability/tutor', tutor?.id],
@@ -138,12 +133,12 @@ export function BookingModal({ isOpen, onClose, tutor }: BookingModalProps) {
       return;
     }
 
-    // Get the payment link for selected subject and hours
-    const paymentInfo = PAYMENT_LINKS[subject]?.[hours];
+    // Get the payment link for selected subject and hours from database
+    const paymentInfo = paymentLinksMap[subject]?.[hours];
     if (!paymentInfo) {
       toast({
         title: 'Invalid Selection',
-        description: 'Please select a valid subject and duration.',
+        description: 'Please select a valid subject and duration. Payment link not found.',
         variant: 'destructive',
       });
       return;
@@ -174,8 +169,8 @@ export function BookingModal({ isOpen, onClose, tutor }: BookingModalProps) {
   if (!tutor) return null;
 
   const hoursNum = parseInt(hours) || 1;
-  const paymentInfo = subject ? PAYMENT_LINKS[subject]?.[hours] : null;
-  const totalAmount = paymentInfo?.amount || 0;
+  const currentPaymentInfo = subject ? paymentLinksMap[subject]?.[hours] : null;
+  const totalAmount = currentPaymentInfo?.amount || 0;
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && handleClose()}>

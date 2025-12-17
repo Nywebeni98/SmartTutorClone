@@ -1,4 +1,4 @@
-import { type ContactSubmission, type InsertContactSubmission, type Appointment, type InsertAppointment, type Availability, type InsertAvailability, type TutorProfile, type InsertTutorProfile, type Pricing, type InsertPricing, type BookingPayment, type InsertBookingPayment } from "@shared/schema";
+import { type ContactSubmission, type InsertContactSubmission, type Appointment, type InsertAppointment, type Availability, type InsertAvailability, type TutorProfile, type InsertTutorProfile, type Pricing, type InsertPricing, type BookingPayment, type InsertBookingPayment, type PaymentLink, type InsertPaymentLink, type ActionLog, type InsertActionLog, type AdminSettings, type InsertAdminSettings } from "@shared/schema";
 import { randomUUID } from "crypto";
 
 // Storage interface with CRUD methods
@@ -42,6 +42,23 @@ export interface IStorage {
   getAllBookingPayments(): Promise<BookingPayment[]>;
   getBookingPaymentsByTutor(tutorId: string): Promise<BookingPayment[]>;
   updateBookingPaymentStatus(id: string, status: string, meetingLink?: string): Promise<BookingPayment | undefined>;
+  
+  // Payment link methods
+  createPaymentLink(link: InsertPaymentLink): Promise<PaymentLink>;
+  getAllPaymentLinks(): Promise<PaymentLink[]>;
+  getPaymentLink(subject: string, hours: number): Promise<PaymentLink | undefined>;
+  updatePaymentLink(id: string, updates: Partial<InsertPaymentLink>): Promise<PaymentLink | undefined>;
+  
+  // Admin settings methods
+  getAdminByUsername(username: string): Promise<AdminSettings | undefined>;
+  verifyAdminPassword(username: string, password: string): Promise<boolean>;
+  createAdminSettings(settings: InsertAdminSettings): Promise<AdminSettings>;
+  updateAdminPassword(username: string, newPassword: string): Promise<AdminSettings | undefined>;
+  
+  // Action log methods
+  createActionLog(log: InsertActionLog): Promise<ActionLog>;
+  getAllActionLogs(): Promise<ActionLog[]>;
+  getRecentActionLogs(limit?: number): Promise<ActionLog[]>;
 }
 
 // In-memory storage implementation

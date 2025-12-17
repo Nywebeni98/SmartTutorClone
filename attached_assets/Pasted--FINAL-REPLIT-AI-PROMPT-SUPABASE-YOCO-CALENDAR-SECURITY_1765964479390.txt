@@ -1,0 +1,168 @@
+✅ FINAL REPLIT AI PROMPT (SUPABASE + YOCO + CALENDAR + SECURITY)
+
+👉 COPY & PASTE THIS INTO REPLIT AI
+
+I am building an online tutoring website using Supabase and Replit.
+Please fix and improve the following issues completely and correctly.
+
+1️⃣ SAVE ALL AVAILABLE TIME SLOTS (CALENDAR BUG FIX)
+
+I am the admin and I set tutor availability time slots.
+
+Problem: When I add more than one time slot, only one appears.
+
+Fix required:
+
+Store ALL time slots in Supabase (not overwrite existing ones).
+
+Each time slot must be saved as a separate row.
+
+Time slots must remain active permanently unless I delete them.
+
+Fetch and display all available time slots correctly on the UI.
+
+2️⃣ YOCO PAYMENT LINKS NOT WORKING (FIX PAY NOW BUTTON)
+
+The Pay Now button is not opening payment links.
+
+I want the Pay Now button to correctly open specific Yoco payment links.
+
+Payment Links:
+
+R200 per hour: https://pay.yoco.com/r/4GQxeA
+
+R400 for 2 hours: https://pay.yoco.com/r/25ZL1w
+
+R250 Physical Sciences per hour: https://pay.yoco.com/r/7vJexK
+
+R500 Physical Sciences for 2 hours
+
+Fix required:
+
+Make Pay Now buttons clickable and working.
+
+Open the correct Yoco link depending on:
+
+Subject
+
+Duration
+
+Ensure links open in a new secure tab.
+
+3️⃣ STORE PAYMENT RECORDS IN SUPABASE
+
+When a user clicks Pay Now:
+
+Store payment intent data in Supabase:
+
+user_id
+
+tutor_id
+
+amount
+
+subject
+
+duration
+
+payment_link
+
+status (pending / paid)
+
+Ensure no duplicate records.
+
+Payments must be readable by:
+
+Admin (all)
+
+User (their own)
+
+4️⃣ ADMIN SECURITY (VERY IMPORTANT)
+
+Add strong admin security:
+
+Admin role stored in Supabase (profiles.role = 'admin')
+
+Only admin can:
+
+Create time slots
+
+View all bookings
+
+View all payments
+
+Enforce Row Level Security (RLS).
+
+Ensure no one can fake admin access.
+
+5️⃣ BOOKINGS & ACTION LOGGING
+
+Every important action must be stored in Supabase:
+
+Bookings created
+
+Payments clicked
+
+Time slots added or removed
+
+Admin must see real-time updates.
+
+6️⃣ EMAIL NOTIFICATIONS (RESEND.COM)
+
+Integrate Resend for email notifications:
+
+Booking confirmation
+
+Payment initiated
+
+Admin alerts
+
+Use environment variables for API keys (NO hardcoding).
+
+Explain:
+
+How to store Resend API key in Replit Secrets
+
+How to send emails from backend
+
+7️⃣ EXPLAIN EVERYTHING
+
+Explain:
+
+Why time slots were not appearing
+
+What was fixed
+
+How payment links now work
+
+How Supabase security prevents scamming
+
+Use production-ready Supabase + Replit code and best practices.
+
+🔐 HOW TO STORE YOUR RESEND API KEY (SAFE WAY)
+In Replit:
+
+Click Tools → Secrets
+
+Add:
+
+Key: RESEND_API_KEY
+Value: (your key)
+
+Backend usage example:
+const resend = new Resend(process.env.RESEND_API_KEY);
+
+
+✅ Secure
+✅ No leaks
+✅ Production-ready
+
+🚨 VERY IMPORTANT SECURITY NOTE
+
+If this project will take real money:
+
+NEVER store secrets in frontend
+
+Use Supabase RLS
+
+Use backend for emails & logging

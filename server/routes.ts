@@ -1,9 +1,12 @@
 import type { Express, Request, Response, NextFunction } from "express";
 import { createServer, type Server } from "http";
-import { storage } from "./storage";
+import { dbStorage, initializeDatabase } from "./dbStorage";
 import { insertContactSchema, insertAppointmentSchema, insertAvailabilitySchema, insertTutorProfileSchema, insertBookingPaymentSchema, passwordSchema } from "@shared/schema";
 import { fromZodError } from "zod-validation-error";
 import { Resend } from 'resend';
+
+// Use database storage
+const storage = dbStorage;
 
 // Initialize Resend for email notifications
 const resend = new Resend(process.env.RESEND_API_KEY);
@@ -48,7 +51,7 @@ async function sendBookingNotificationEmail(booking: {
           <li><strong>Amount Paid:</strong> R${booking.amount}</li>
           ${booking.slotDate ? `<li><strong>Date:</strong> ${booking.slotDate}</li>` : ''}
           ${booking.slotTime ? `<li><strong>Time:</strong> ${booking.slotTime}</li>` : ''}
-          ${booking.meetingLink ? `<li><strong>Google Meet Link:</strong> <a href="https://meet.google.com/${booking.meetingLink}">https://meet.google.com/${booking.meetingLink}</a></li>` : ''}
+          ${booking.meetingLink ? `<li><strong>Google Meet Link:</strong> <a href="${booking.meetingLink}">${booking.meetingLink}</a></li>` : ''}
         </ul>
         <p>Please reach out to the student to confirm the session.</p>
         <hr>
@@ -65,10 +68,6 @@ async function sendBookingNotificationEmail(booking: {
     console.error('Error sending booking notification email:', err);
   }
 }
-
-// Admin credentials
-const ADMIN_USERNAME = process.env.ADMIN_USERNAME || 'Lisa98';
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'Lisa98*#2025';
 
 // Simple admin session tracking (in production, use proper sessions/JWT)
 const adminSessions = new Set<string>();
@@ -100,6 +99,98 @@ function requireAdmin(req: Request, res: Response, next: NextFunction) {
 }
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Initialize database with default data (payment links, admin, featured tutors)
+  try {
+    await initializeDatabase(storage);
+  } catch (error) {
+    console.error('Failed to initialize database:', error);
+  }
+
+  // Payment links endpoints
+  app.get("/api/payment-links", async (req, res) => {
+    try {
+      const links = await storage.getAllPaymentLinks();
+      res.json(links);
+    } catch (error) {
+      console.error("Error fetching payment links:", error);
+      res.status(500).json({
+        success: false,
+        message: "Internal server error",
+      });
+    }
+  });
+
+  app.get("/api/payment-links/:subject/:hours", async (req, res) => {
+    try {
+      const { subject, hours } = req.params;
+      const link = await storage.getPaymentLink(subject, parseInt(hours));
+      if (!link) {
+        return res.status(404).json({
+          success: false,
+          message: "Payment link not found",
+        });
+      }
+      res.json(link);
+    } catch (error) {
+      console.error("Error fetching payment link:", error);
+      res.status(500).json({
+        success: false,
+        message: "Internal server error",
+      });
+    }
+  });
+
+  // Admin-only payment link management
+  app.post("/api/payment-links", requireAdmin, async (req, res) => {
+    try {
+      const { subject, hours, amount, url } = req.body;
+      const link = await storage.createPaymentLink({ subject, hours, amount, url });
+      res.status(201).json(link);
+    } catch (error) {
+      console.error("Error creating payment link:", error);
+      res.status(500).json({
+        success: false,
+        message: "Internal server error",
+      });
+    }
+  });
+
+  app.patch("/api/payment-links/:id", requireAdmin, async (req, res) => {
+    try {
+      const { id } = req.params;
+      const updates = req.body;
+      const link = await storage.updatePaymentLink(id, updates);
+      if (!link) {
+        return res.status(404).json({
+          success: false,
+          message: "Payment link not found",
+        });
+      }
+      res.json(link);
+    } catch (error) {
+      console.error("Error updating payment link:", error);
+      res.status(500).json({
+        success: false,
+        message: "Internal server error",
+      });
+    }
+  });
+
+  // Action logs endpoints (admin only)
+  app.get("/api/action-logs", requireAdmin, async (req, res) => {
+    try {
+      const limit = parseInt(req.query.limit as string) || 50;
+      const logs = await storage.getRecentActionLogs(limit);
+      res.json(logs);
+    } catch (error) {
+      console.error("Error fetching action logs:", error);
+      res.status(500).json({
+        success: false,
+        message: "Internal server error",
+      });
+    }
+  });
+
   // Contact form submission endpoint
   app.post("/api/contact", async (req, res) => {
     try {
@@ -990,10 +1081,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { username, password } = req.body;
       
-      if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
+      // Verify credentials against database (password is hashed)
+      const isValid = await storage.verifyAdminPassword(username, password);
+      
+      if (isValid) {
         // Generate a simple token (in production, use proper JWT)
         const token = `admin_${Date.now()}_${Math.random().toString(36).substring(7)}`;
         adminSessions.add(token);
+        
+        // Log admin login
+        await storage.createActionLog({
+          actionType: 'admin_login',
+          description: `Admin ${username} logged in`,
+          userId: username,
+        });
         
         res.json({
           success: true,

@@ -78,6 +78,10 @@ export function AdminAuthModal({ isOpen, onClose }: AdminAuthModalProps) {
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               required
+              autoCapitalize="none"
+              autoCorrect="off"
+              autoComplete="username"
+              spellCheck={false}
               data-testid="input-admin-username"
             />
           </div>
@@ -92,6 +96,10 @@ export function AdminAuthModal({ isOpen, onClose }: AdminAuthModalProps) {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
+                autoCapitalize="none"
+                autoCorrect="off"
+                autoComplete="current-password"
+                spellCheck={false}
                 data-testid="input-admin-password"
               />
               <Button

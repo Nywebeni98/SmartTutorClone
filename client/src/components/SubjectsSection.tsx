@@ -4,9 +4,7 @@ import {
   Calculator, 
   Beaker, 
   BookOpen, 
-  Globe, 
   Languages, 
-  Microscope,
   Brain,
   Computer 
 } from 'lucide-react';
@@ -40,19 +38,11 @@ export function SubjectsSection() {
     },
     {
       id: 4,
-      title: 'Life Sciences',
-      description: 'Understand biology, ecology, human anatomy, and the natural world around you.',
-      icon: Microscope,
+      title: 'Maths Literacy',
+      description: 'Build practical numeracy skills for everyday life and the workplace.',
+      icon: Calculator,
       color: 'hsl(var(--brand-blue))',
       bgColor: 'hsl(var(--brand-blue) / 0.2)',
-    },
-    {
-      id: 5,
-      title: 'Geography',
-      description: 'Learn about Earth systems, maps, climate, and human-environment interactions.',
-      icon: Globe,
-      color: 'hsl(var(--brand-yellow))',
-      bgColor: 'hsl(var(--brand-yellow) / 0.2)',
     },
     {
       id: 6,

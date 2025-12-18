@@ -159,6 +159,7 @@ export function TutorsSection() {
         supabaseUserId: tutor.id,
         fullName: tutor.name,
         email: `${tutor.id}@besmartonline.co.za`,
+        phone: null,
         bio: tutor.bio,
         subjects: tutor.subjects,
         hourlyRate: tutor.hourlyRate,
@@ -425,7 +426,6 @@ export function TutorsSection() {
                           >
                             {tutor.fullName}
                           </h4>
-                          <p className="text-sm text-muted-foreground">{tutor.email}</p>
                         </div>
                       </div>
 

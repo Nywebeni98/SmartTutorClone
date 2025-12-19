@@ -145,10 +145,10 @@ export function Header() {
                   <ShieldCheck className="h-4 w-4 mr-2" />
                   Admin
                 </Button>
-                
-                <InstallAppButton />
               </div>
             )}
+            
+            <InstallAppButton />
           </div>
 
           {/* Mobile menu button */}
@@ -236,12 +236,12 @@ export function Header() {
                     <ShieldCheck className="h-4 w-4 mr-2" />
                     Admin Login
                   </Button>
-                  
-                  <div className="pt-2">
-                    <InstallAppButton />
-                  </div>
                 </div>
               )}
+              
+              <div className="pt-3">
+                <InstallAppButton />
+              </div>
             </div>
           </nav>
         </div>

@@ -24,6 +24,20 @@ Preferred communication style: Simple, everyday language.
 - **Trigger:** When a student completes a booking via `/api/booking-payments/complete`
 - **Note:** Using free Resend plan with onboarding@resend.dev sender
 
+### Progressive Web App (PWA)
+- **Status:** Fully implemented - users can install the app directly from the website
+- **Android:** Users see "Install App" button, tapping it triggers native install prompt
+- **iPhone/iPad:** Users see "Install App" button, tapping shows instructions to use Safari's "Add to Home Screen"
+- **Files:**
+  - `client/public/manifest.json` - App metadata (name, icons, colors, display mode)
+  - `client/public/sw.js` - Service worker for offline caching
+  - `client/src/components/InstallAppButton.tsx` - Install button component
+- **Features:**
+  - Standalone app mode (no browser chrome)
+  - Offline support via service worker caching
+  - Theme color matches brand blue (#0a4191)
+  - Works on all modern browsers
+
 ## System Architecture
 
 ### Frontend Architecture

@@ -21,21 +21,19 @@ interface BeforeInstallPromptEvent extends Event {
 
 export function SubjectsSection() {
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
-  const [showInstallBanner, setShowInstallBanner] = useState(false);
+  const [showInstallBanner, setShowInstallBanner] = useState(true);
   const [isIOS, setIsIOS] = useState(false);
   const [showIOSModal, setShowIOSModal] = useState(false);
 
   useEffect(() => {
     const isIOSDevice = /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream;
-    const isAndroid = /Android/.test(navigator.userAgent);
-    const isMobile = isIOSDevice || isAndroid || window.innerWidth < 768;
     const isInStandaloneMode = window.matchMedia('(display-mode: standalone)').matches || (navigator as any).standalone;
     
     setIsIOS(isIOSDevice);
     
-    // Show banner on mobile devices (not already installed)
-    if (isMobile && !isInStandaloneMode) {
-      setShowInstallBanner(true);
+    // Hide banner if already installed as standalone app
+    if (isInStandaloneMode) {
+      setShowInstallBanner(false);
     }
 
     const handler = (e: Event) => {

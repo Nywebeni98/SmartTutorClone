@@ -24,19 +24,19 @@ Preferred communication style: Simple, everyday language.
 - **Trigger:** When a student completes a booking via `/api/booking-payments/complete`
 - **Note:** Using free Resend plan with onboarding@resend.dev sender
 
-### Progressive Web App (PWA)
-- **Status:** Fully implemented - users can install the app directly from the website
-- **Android:** Users see "Install App" button, tapping it triggers native install prompt
-- **iPhone/iPad:** Users see "Install App" button, tapping shows instructions to use Safari's "Add to Home Screen"
-- **Files:**
-  - `client/public/manifest.json` - App metadata (name, icons, colors, display mode)
-  - `client/public/sw.js` - Service worker for offline caching
-  - `client/src/components/InstallAppButton.tsx` - Install button component
-- **Features:**
-  - Standalone app mode (no browser chrome)
-  - Offline support via service worker caching
-  - Theme color matches brand blue (#0a4191)
-  - Works on all modern browsers
+### New Tutor: Lutho Hanjana
+- **Status:** Added to system (pending email verification)
+- **Qualification:** Opticianry from Cape Peninsula University of Technology
+- **Bio:** "I have a qualification in Opticianry that I obtained at the Cape Peninsula University of Capetown in the Faculty of Health Science. My aim is to empower the youth with knowledge that will shape their future"
+- **Subjects & Rates:**
+  - Life Sciences: R200/hour
+  - English: R200/hour
+  - Maths: R200/hour
+  - Physics: R250/hour
+- **Google Meet:** https://meet.google.com/tgv-tccd-ges
+- **Photo:** Uploaded (WhatsApp_Image_2025-12-19)
+- **Email:** TBA (placeholder: lutho.hanjana.pending@example.com)
+- **Availability:** 8 time slots created (M, W, F, Sat)
 
 ## System Architecture
 

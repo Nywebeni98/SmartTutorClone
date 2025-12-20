@@ -942,7 +942,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Create a booking token before redirecting to payment (pay-first flow)
   app.post("/api/booking/create-token", async (req, res) => {
     try {
-      const { tutorId, availabilityId, subject, hours, amount, studentName, studentEmail } = req.body;
+      const { tutorId, availabilityId, subject, studentName, studentEmail } = req.body;
+      // Convert hours and amount to numbers to handle string inputs
+      const hours = Number(req.body.hours);
+      const amount = Number(req.body.amount);
+      
+      console.log("Create token request:", { tutorId, availabilityId, subject, hours, amount, studentName, studentEmail });
       
       if (!tutorId || !subject || !hours || !amount) {
         return res.status(400).json({

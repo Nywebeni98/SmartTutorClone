@@ -133,6 +133,9 @@ async function sendBookingNotificationEmail(booking: {
 // Simple admin session tracking (in production, use proper sessions/JWT)
 const adminSessions = new Set<string>();
 
+// Tutor session tracking (maps token -> tutorId)
+const tutorSessions = new Map<string, string>();
+
 // Pending booking tokens for pay-first flow
 // Maps token -> booking info + timestamp (expires after 30 minutes)
 const pendingBookingTokens = new Map<string, { tutorId: string; availabilityId: string; subject: string; hours: number; amount: number; studentName: string; studentEmail: string; createdAt: number }>();
@@ -1365,6 +1368,111 @@ export async function registerRoutes(app: Express): Promise<Server> {
       adminSessions.delete(adminToken);
     }
     res.json({ success: true, message: "Logged out successfully" });
+  });
+
+  // Tutor authentication endpoint (email/password where password = email)
+  app.post("/api/tutor/login", async (req, res) => {
+    try {
+      const { email, password } = req.body;
+      
+      if (!email || !password) {
+        return res.status(400).json({
+          success: false,
+          message: "Email and password are required",
+        });
+      }
+      
+      // Verify tutor credentials
+      const tutor = await storage.verifyTutorPassword(email, password);
+      
+      if (tutor) {
+        // Check if tutor is blocked
+        if (tutor.isBlocked) {
+          return res.status(403).json({
+            success: false,
+            message: "Your account has been blocked. Please contact the administrator.",
+          });
+        }
+        
+        // Generate a simple token
+        const token = `tutor_${Date.now()}_${Math.random().toString(36).substring(7)}`;
+        tutorSessions.set(token, tutor.id);
+        
+        // Log tutor login
+        await storage.createActionLog({
+          actionType: 'tutor_login',
+          description: `Tutor ${tutor.fullName} logged in`,
+          userId: tutor.email,
+        });
+        
+        res.json({
+          success: true,
+          message: "Login successful",
+          token,
+          tutor: {
+            id: tutor.id,
+            email: tutor.email,
+            fullName: tutor.fullName,
+            isApproved: tutor.isApproved,
+          },
+        });
+      } else {
+        res.status(401).json({
+          success: false,
+          message: "Invalid email or password",
+        });
+      }
+    } catch (error) {
+      console.error("Error in tutor login:", error);
+      res.status(500).json({
+        success: false,
+        message: "Internal server error",
+      });
+    }
+  });
+
+  // Tutor logout endpoint
+  app.post("/api/tutor/logout", (req, res) => {
+    const tutorToken = req.headers['x-tutor-token'] as string;
+    if (tutorToken) {
+      tutorSessions.delete(tutorToken);
+    }
+    res.json({ success: true, message: "Logged out successfully" });
+  });
+
+  // Get tutor profile by token
+  app.get("/api/tutor/profile", async (req, res) => {
+    try {
+      const tutorToken = req.headers['x-tutor-token'] as string;
+      if (!tutorToken || !tutorSessions.has(tutorToken)) {
+        return res.status(401).json({
+          success: false,
+          message: "Authentication required",
+        });
+      }
+      
+      const tutorId = tutorSessions.get(tutorToken);
+      const tutor = await storage.getTutorProfileById(tutorId!);
+      
+      if (!tutor) {
+        tutorSessions.delete(tutorToken);
+        return res.status(401).json({
+          success: false,
+          message: "Tutor not found",
+        });
+      }
+      
+      res.json({
+        success: true,
+        tutor,
+      });
+    } catch (error) {
+      console.error("Error fetching tutor profile:", error);
+      res.status(500).json({
+        success: false,
+        message: "Internal server error",
+      });
+    }
   });
 
   // Get booking details by student email (for viewing active bookings)

@@ -25,10 +25,13 @@ export interface IStorage {
   createTutorProfile(profile: InsertTutorProfile): Promise<TutorProfile>;
   getTutorProfileByUserId(supabaseUserId: string): Promise<TutorProfile | undefined>;
   getTutorProfileById(id: string): Promise<TutorProfile | undefined>;
+  getTutorProfileByEmail(email: string): Promise<TutorProfile | undefined>;
   getAllTutorProfiles(): Promise<TutorProfile[]>;
   updateTutorProfile(id: string, updates: Partial<InsertTutorProfile>): Promise<TutorProfile | undefined>;
   approveTutor(id: string): Promise<TutorProfile | undefined>;
   blockTutor(id: string, blocked: boolean): Promise<TutorProfile | undefined>;
+  setTutorPassword(id: string, password: string): Promise<boolean>;
+  verifyTutorPassword(email: string, password: string): Promise<TutorProfile | null>;
   
   // Pricing methods
   createPricing(pricing: InsertPricing): Promise<Pricing>;

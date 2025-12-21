@@ -210,6 +210,32 @@ export class DbStorage implements IStorage {
     return result;
   }
 
+  // Get tutor profile by email
+  async getTutorProfileByEmail(email: string): Promise<TutorProfile | undefined> {
+    const [result] = await db.select().from(tutorProfiles).where(eq(tutorProfiles.email, email));
+    return result;
+  }
+
+  // Set tutor password (hashed)
+  async setTutorPassword(id: string, password: string): Promise<boolean> {
+    const hash = await hashPassword(password);
+    const [result] = await db.update(tutorProfiles)
+      .set({ passwordHash: hash, updatedAt: new Date() })
+      .where(eq(tutorProfiles.id, id))
+      .returning();
+    return !!result;
+  }
+
+  // Verify tutor password
+  async verifyTutorPassword(email: string, password: string): Promise<TutorProfile | null> {
+    const tutor = await this.getTutorProfileByEmail(email);
+    if (!tutor || !tutor.passwordHash) {
+      return null;
+    }
+    const isValid = await verifyPassword(password, tutor.passwordHash);
+    return isValid ? tutor : null;
+  }
+
   // Pricing methods
   async createPricing(insertPricing: InsertPricing): Promise<Pricing> {
     const [result] = await db.insert(pricing).values({

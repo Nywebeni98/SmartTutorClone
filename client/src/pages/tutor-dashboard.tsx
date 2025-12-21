@@ -1,5 +1,4 @@
-import { useState } from 'react';
-import { useAuth } from '@/contexts/AuthContext';
+import { useState, useEffect } from 'react';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { queryClient, apiRequest } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
@@ -9,55 +8,19 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Calendar, Clock, LogOut, Loader2, GraduationCap, Plus, Trash2 } from 'lucide-react';
-import { SiGoogle } from 'react-icons/si';
-import { supabase, isSupabaseConfigured } from '@/lib/supabase';
-import type { Availability } from '@shared/schema';
+import type { Availability, TutorProfile } from '@shared/schema';
 
 export default function TutorDashboard() {
-  const { user, tutorProfile, userRole, signOut, loading } = useAuth();
   const { toast } = useToast();
   const [isSigningIn, setIsSigningIn] = useState(false);
-
-  // Direct Google sign-in handler with error feedback
-  const handleGoogleSignIn = async () => {
-    if (!isSupabaseConfigured) {
-      toast({
-        title: 'Configuration Error',
-        description: 'Google sign-in is not configured. Please contact the administrator.',
-        variant: 'destructive',
-      });
-      return;
-    }
-
-    setIsSigningIn(true);
-    try {
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: 'google',
-        options: {
-          redirectTo: `${window.location.origin}/tutor-dashboard`,
-        },
-      });
-      
-      if (error) {
-        console.error('Google sign-in error:', error);
-        toast({
-          title: 'Sign In Failed',
-          description: error.message || 'Could not connect to Google. Please try again.',
-          variant: 'destructive',
-        });
-        setIsSigningIn(false);
-      }
-      // If no error, the browser will redirect to Google
-    } catch (err) {
-      console.error('Unexpected error during sign-in:', err);
-      toast({
-        title: 'Error',
-        description: 'An unexpected error occurred. Please try again.',
-        variant: 'destructive',
-      });
-      setIsSigningIn(false);
-    }
-  };
+  const [tutorToken, setTutorToken] = useState<string | null>(null);
+  const [tutorProfile, setTutorProfile] = useState<TutorProfile | null>(null);
+  const [loading, setLoading] = useState(true);
+  
+  const [loginForm, setLoginForm] = useState({
+    email: '',
+    password: '',
+  });
 
   const [availabilityForm, setAvailabilityForm] = useState({
     date: '',
@@ -65,6 +28,104 @@ export default function TutorDashboard() {
     endTime: '',
     notes: '',
   });
+
+  useEffect(() => {
+    const savedToken = sessionStorage.getItem('tutorToken');
+    if (savedToken) {
+      setTutorToken(savedToken);
+      fetchTutorProfile(savedToken);
+    } else {
+      setLoading(false);
+    }
+  }, []);
+
+  const fetchTutorProfile = async (token: string) => {
+    try {
+      const response = await fetch('/api/tutor/profile', {
+        headers: {
+          'x-tutor-token': token,
+        },
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setTutorProfile(data.tutor);
+        setTutorToken(token);
+      } else {
+        sessionStorage.removeItem('tutorToken');
+        setTutorToken(null);
+        setTutorProfile(null);
+      }
+    } catch (error) {
+      console.error('Error fetching tutor profile:', error);
+      sessionStorage.removeItem('tutorToken');
+      setTutorToken(null);
+      setTutorProfile(null);
+    }
+    setLoading(false);
+  };
+
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSigningIn(true);
+    
+    try {
+      const response = await fetch('/api/tutor/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: loginForm.email,
+          password: loginForm.password,
+        }),
+      });
+      
+      const data = await response.json();
+      
+      if (response.ok && data.success) {
+        sessionStorage.setItem('tutorToken', data.token);
+        setTutorToken(data.token);
+        await fetchTutorProfile(data.token);
+        toast({
+          title: 'Welcome!',
+          description: `Signed in as ${data.tutor.fullName}`,
+        });
+      } else {
+        toast({
+          title: 'Sign In Failed',
+          description: data.message || 'Invalid email or password',
+          variant: 'destructive',
+        });
+      }
+    } catch (error) {
+      console.error('Login error:', error);
+      toast({
+        title: 'Error',
+        description: 'An unexpected error occurred. Please try again.',
+        variant: 'destructive',
+      });
+    }
+    
+    setIsSigningIn(false);
+  };
+
+  const handleSignOut = async () => {
+    try {
+      await fetch('/api/tutor/logout', {
+        method: 'POST',
+        headers: {
+          'x-tutor-token': tutorToken || '',
+        },
+      });
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
+    
+    sessionStorage.removeItem('tutorToken');
+    setTutorToken(null);
+    setTutorProfile(null);
+    setLoginForm({ email: '', password: '' });
+  };
 
   const { data: availabilities = [], isLoading: loadingAvailabilities } = useQuery<Availability[]>({
     queryKey: ['/api/availability/tutor', tutorProfile?.id],
@@ -104,12 +165,6 @@ export default function TutorDashboard() {
     },
   });
 
-  const handleSignOut = async () => {
-    await signOut();
-    // Stay on tutor dashboard (will show sign-in screen)
-  };
-
-  // Show loading state while auth is being checked
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
@@ -121,8 +176,7 @@ export default function TutorDashboard() {
     );
   }
 
-  // Show sign-in screen if not logged in as tutor
-  if (!user || userRole !== 'tutor') {
+  if (!tutorToken || !tutorProfile) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <Card className="max-w-md w-full mx-4">
@@ -135,39 +189,63 @@ export default function TutorDashboard() {
               Sign in with your registered tutor email to manage your availability
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <Button 
-              onClick={handleGoogleSignIn} 
-              className="w-full gap-2"
-              variant="outline"
-              disabled={isSigningIn}
-              data-testid="button-tutor-google-signin"
-            >
-              {isSigningIn ? (
-                <>
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                  Connecting...
-                </>
-              ) : (
-                <>
-                  <SiGoogle className="h-4 w-4" />
-                  Continue with Google
-                </>
-              )}
-            </Button>
-            <p className="text-xs text-center text-muted-foreground">
-              Only registered tutor emails can access this page. Contact the administrator if you need access.
-            </p>
+          <CardContent>
+            <form onSubmit={handleLogin} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="email">Email</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  placeholder="your.email@example.com"
+                  value={loginForm.email}
+                  onChange={(e) => setLoginForm({ ...loginForm, email: e.target.value })}
+                  required
+                  data-testid="input-tutor-email"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="password">Password</Label>
+                <Input
+                  id="password"
+                  type="password"
+                  placeholder="Enter your password"
+                  value={loginForm.password}
+                  onChange={(e) => setLoginForm({ ...loginForm, password: e.target.value })}
+                  required
+                  data-testid="input-tutor-password"
+                />
+              </div>
+              <Button 
+                type="submit"
+                className="w-full"
+                disabled={isSigningIn}
+                style={{ 
+                  backgroundColor: 'hsl(var(--brand-blue))',
+                  color: 'white'
+                }}
+                data-testid="button-tutor-signin"
+              >
+                {isSigningIn ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    Signing in...
+                  </>
+                ) : (
+                  'Sign In'
+                )}
+              </Button>
+              <p className="text-xs text-center text-muted-foreground">
+                Only registered tutor emails can access this page. Contact the administrator if you need access.
+              </p>
+            </form>
           </CardContent>
         </Card>
       </div>
     );
   }
 
-  // Main availability management page for signed-in tutors
   return (
     <div className="min-h-screen bg-background">
-      {/* Simple header */}
       <header className="border-b bg-card">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between gap-4">
           <div className="flex items-center gap-3">
@@ -189,7 +267,6 @@ export default function TutorDashboard() {
       </header>
 
       <main className="container mx-auto px-4 py-8 max-w-3xl">
-        {/* Add Availability Card */}
         <Card className="mb-6">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -265,7 +342,6 @@ export default function TutorDashboard() {
           </CardContent>
         </Card>
 
-        {/* Your Available Time Slots */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">

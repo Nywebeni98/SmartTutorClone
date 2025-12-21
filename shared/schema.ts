@@ -34,6 +34,7 @@ export const tutorProfiles = pgTable("tutor_profiles", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   supabaseUserId: text("supabase_user_id").notNull().unique(),
   email: text("email").notNull().unique(),
+  passwordHash: text("password_hash"), // For email/password login (password = email)
   fullName: text("full_name").notNull(),
   phone: text("phone"),
   photoUrl: text("photo_url"),

@@ -363,6 +363,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Availability management endpoints
   app.post("/api/availability", async (req, res) => {
     try {
+      console.log("Availability request body:", JSON.stringify(req.body));
       const validatedData = insertAvailabilitySchema.parse(req.body);
       const availability = await storage.createAvailability(validatedData);
       res.status(201).json({

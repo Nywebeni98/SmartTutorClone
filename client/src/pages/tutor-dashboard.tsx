@@ -135,18 +135,25 @@ export default function TutorDashboard() {
 
   const addAvailabilityMutation = useMutation({
     mutationFn: async (data: typeof availabilityForm) => {
-      const dateObj = new Date(data.date);
+      // Parse date correctly - add 'T12:00:00' to avoid timezone issues
+      const dateObj = new Date(data.date + 'T12:00:00');
       const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
       const day = days[dateObj.getDay()];
       
-      return apiRequest('POST', '/api/availability', {
+      const payload: Record<string, any> = {
         tutorId: tutorProfile?.id,
         day: day,
         date: data.date,
         startTime: data.startTime,
         endTime: data.endTime,
-        notes: data.notes || null,
-      });
+      };
+      
+      // Only add notes if it has a value
+      if (data.notes && data.notes.trim()) {
+        payload.notes = data.notes.trim();
+      }
+      
+      return apiRequest('POST', '/api/availability', payload);
     },
     onSuccess: () => {
       toast({ title: 'Time Slot Added', description: 'Your available time slot has been added.' });

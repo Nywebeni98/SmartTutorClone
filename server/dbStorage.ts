@@ -494,13 +494,11 @@ export async function initializeDatabase(storage: DbStorage) {
     
     console.log('Featured tutors created successfully');
   } else {
-    // Ensure all existing tutors have passwords set (email as password)
-    console.log('Checking tutor passwords...');
+    // Reset all tutor passwords to their email (normalized to lowercase)
+    console.log('Resetting tutor passwords...');
     for (const tutor of existingTutors) {
-      if (!tutor.passwordHash) {
-        console.log(`Setting password for tutor: ${tutor.email}`);
-        await storage.setTutorPassword(tutor.id, tutor.email);
-      }
+      console.log(`Resetting password for tutor: ${tutor.email}`);
+      await storage.setTutorPassword(tutor.id, tutor.email);
     }
   }
   

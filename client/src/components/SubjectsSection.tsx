@@ -5,8 +5,7 @@ import {
   Beaker, 
   BookOpen, 
   Languages, 
-  Brain,
-  Computer
+  Brain
 } from 'lucide-react';
 
 export function SubjectsSection() {
@@ -54,19 +53,11 @@ export function SubjectsSection() {
     },
     {
       id: 7,
-      title: 'Accounting',
-      description: 'Master financial accounting principles, bookkeeping, and business concepts.',
+      title: 'Life Sciences',
+      description: 'Explore biology, anatomy, and the living world with hands-on learning and expert guidance.',
       icon: Brain,
       color: 'hsl(var(--brand-blue))',
       bgColor: 'hsl(var(--brand-blue) / 0.2)',
-    },
-    {
-      id: 8,
-      title: 'Computer Science',
-      description: 'Learn programming, algorithms, and computational thinking for the digital age.',
-      icon: Computer,
-      color: 'hsl(var(--brand-yellow))',
-      bgColor: 'hsl(var(--brand-yellow) / 0.2)',
     },
   ];
 

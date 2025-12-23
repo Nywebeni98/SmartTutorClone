@@ -88,24 +88,6 @@ export function Hero() {
               Get Started
             </Button>
           </div>
-
-          {/* Trust indicators */}
-          <div className="pt-12 flex flex-wrap items-center justify-center gap-8 text-white/80">
-            <div className="flex flex-col items-center" data-testid="stat-experience">
-              <div className="text-3xl font-bold" style={{ color: 'hsl(var(--brand-yellow))' }}>5+</div>
-              <div className="text-sm">Years Experience</div>
-            </div>
-            <div className="hidden sm:block w-px h-12 bg-white/20"></div>
-            <div className="flex flex-col items-center" data-testid="stat-students">
-              <div className="text-3xl font-bold" style={{ color: 'hsl(var(--brand-yellow))' }}>500+</div>
-              <div className="text-sm">Students Helped</div>
-            </div>
-            <div className="hidden sm:block w-px h-12 bg-white/20"></div>
-            <div className="flex flex-col items-center" data-testid="stat-subjects">
-              <div className="text-3xl font-bold" style={{ color: 'hsl(var(--brand-yellow))' }}>8+</div>
-              <div className="text-sm">Subjects Covered</div>
-            </div>
-          </div>
         </div>
       </div>
 

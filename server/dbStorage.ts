@@ -429,6 +429,10 @@ export async function initializeDatabase(storage: DbStorage) {
     await storage.createPaymentLink({ subject: 'Afrikaans', hours: 1, amount: 250, url: 'https://pay.yoco.com/r/7vJexK' });
     await storage.createPaymentLink({ subject: 'Afrikaans', hours: 2, amount: 500, url: 'https://pay.yoco.com/r/4kQVPZ' });
     
+    // Life Sciences (same as Maths pricing - R200/hour)
+    await storage.createPaymentLink({ subject: 'Life Sciences', hours: 1, amount: 200, url: 'https://pay.yoco.com/r/4GQxeA' });
+    await storage.createPaymentLink({ subject: 'Life Sciences', hours: 2, amount: 400, url: 'https://pay.yoco.com/r/25ZL1w' });
+    
     console.log('Payment links created successfully');
   }
   

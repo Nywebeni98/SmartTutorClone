@@ -991,14 +991,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Fixed pricing configuration for pay-first flow
-  // Maths, English, History, CAT = R200/hr
-  // Physical Sciences = R250/hr
+  // Maths, English, History, CAT, Life Sciences = R200/hr
+  // Physical Sciences, Afrikaans = R250/hr
   const ALLOWED_PRICING: Record<string, Record<number, number>> = {
     'Maths': { 1: 200, 2: 400 },
     'English': { 1: 200, 2: 400 },
     'History': { 1: 200, 2: 400 },
     'CAT': { 1: 200, 2: 400 },
+    'Life Sciences': { 1: 200, 2: 400 },
     'Physical Sciences': { 1: 250, 2: 500 },
+    'Afrikaans': { 1: 250, 2: 500 },
   };
 
   // Create a booking token before redirecting to payment (pay-first flow)
@@ -1029,7 +1031,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!ALLOWED_PRICING[subject]) {
         return res.status(400).json({
           success: false,
-          message: "Invalid subject. Supported subjects: Maths, Physical Sciences, English, History, CAT.",
+          message: "Invalid subject. Supported subjects: Maths, Physical Sciences, English, History, CAT, Life Sciences, Afrikaans.",
         });
       }
 

@@ -1,5 +1,6 @@
 // Footer component with links, contact info, and social media
-import { MapPin, Facebook, Instagram, Twitter } from 'lucide-react';
+import { MapPin, Facebook } from 'lucide-react';
+import { SiTiktok } from 'react-icons/si';
 import logoUrl from '@assets/Blue Minimal Idea Free Education Logo_1764023278343.png';
 
 export function Footer() {
@@ -20,11 +21,10 @@ export function Footer() {
     { label: 'More Subjects', href: '#subjects' },
   ];
 
-  // Social media links (placeholders)
+  // Social media links
   const socialLinks = [
-    { icon: Facebook, href: '#', label: 'Facebook' },
-    { icon: Instagram, href: '#', label: 'Instagram' },
-    { icon: Twitter, href: '#', label: 'Twitter' },
+    { icon: Facebook, href: 'https://www.facebook.com/share/1A7XLZ8AS4/', label: 'Facebook' },
+    { icon: SiTiktok, href: 'https://www.tiktok.com/@besmart26k', label: 'TikTok' },
   ];
 
   return (
@@ -68,10 +68,12 @@ export function Footer() {
                   <a
                     key={index}
                     href={social.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
                     aria-label={social.label}
                     className="w-10 h-10 rounded-full flex items-center justify-center hover-elevate active-elevate-2 transition-all"
                     style={{ backgroundColor: 'hsl(var(--brand-blue) / 0.1)' }}
-                    data-testid={`link-social-${index}`}
+                    data-testid={`link-social-${social.label.toLowerCase()}`}
                   >
                     <Icon 
                       className="w-5 h-5" 

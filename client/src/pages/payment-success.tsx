@@ -7,7 +7,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
-import { CheckCircle, Video, Loader2, ArrowLeft, User, Mail, Phone, Calendar, Clock, BookOpen, Copy } from 'lucide-react';
+import { AlertDialog, AlertDialogAction, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
+import { CheckCircle, Video, Loader2, ArrowLeft, User, Mail, Phone, Calendar, Clock, BookOpen, Copy, Info } from 'lucide-react';
 
 interface PendingBooking {
   bookingToken: string;
@@ -41,6 +42,7 @@ export default function PaymentSuccess() {
     phone: string | null;
     googleMeetUrl: string | null;
   } | null>(null);
+  const [showMeetingAlert, setShowMeetingAlert] = useState(false);
 
   useEffect(() => {
     // Retrieve pending booking info from sessionStorage
@@ -66,7 +68,8 @@ export default function PaymentSuccess() {
     },
     onSuccess: (data: any) => {
       setBookingComplete(true);
-      setMeetingLink(data.meetingLink || pendingBooking?.tutorMeetLink || null);
+      const link = data.meetingLink || pendingBooking?.tutorMeetLink || null;
+      setMeetingLink(link);
       // Store tutor details from the response
       if (data.tutorDetails) {
         setTutorDetails(data.tutorDetails);
@@ -80,6 +83,10 @@ export default function PaymentSuccess() {
         title: 'Booking Confirmed!',
         description: 'Your tutoring session has been booked successfully.',
       });
+      // Show meeting link alert if available
+      if (link) {
+        setShowMeetingAlert(true);
+      }
     },
     onError: (error: any) => {
       toast({
@@ -151,6 +158,51 @@ export default function PaymentSuccess() {
   if (bookingComplete) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background p-4">
+        {/* Important: Google Meet Link Alert Dialog */}
+        <AlertDialog open={showMeetingAlert} onOpenChange={setShowMeetingAlert}>
+          <AlertDialogContent className="max-w-md">
+            <AlertDialogHeader>
+              <div className="mx-auto mb-4 h-16 w-16 rounded-full bg-blue-100 flex items-center justify-center">
+                <Video className="h-10 w-10 text-blue-600" />
+              </div>
+              <AlertDialogTitle className="text-center text-xl">
+                Important: Your Google Meet Link
+              </AlertDialogTitle>
+              <AlertDialogDescription className="text-center space-y-3">
+                <p>
+                  You will use this Google Meet link to join your tutoring session at the scheduled time.
+                </p>
+                <div className="bg-blue-50 dark:bg-blue-950/30 p-3 rounded-lg border border-blue-200 dark:border-blue-800">
+                  <p className="font-medium text-blue-800 dark:text-blue-200 break-all text-sm">
+                    {meetingLink}
+                  </p>
+                </div>
+                <p className="text-sm font-medium text-orange-600 dark:text-orange-400">
+                  Please save or copy this link now! You will need it to connect with your tutor.
+                </p>
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter className="flex-col gap-2 sm:flex-col">
+              <Button
+                className="w-full"
+                onClick={() => {
+                  if (meetingLink) {
+                    navigator.clipboard.writeText(meetingLink);
+                    toast({ title: 'Link Copied!', description: 'Meeting link copied to clipboard.' });
+                  }
+                }}
+                data-testid="button-copy-link-dialog"
+              >
+                <Copy className="h-4 w-4 mr-2" />
+                Copy Link to Clipboard
+              </Button>
+              <AlertDialogAction className="w-full" data-testid="button-understand-dialog">
+                I Understand - Show My Booking Details
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+
         <Card className="max-w-md w-full">
           <CardHeader className="text-center">
             <div className="mx-auto mb-4 h-16 w-16 rounded-full bg-green-100 flex items-center justify-center">

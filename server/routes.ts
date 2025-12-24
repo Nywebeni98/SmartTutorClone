@@ -73,12 +73,13 @@ async function sendSessionReminderEmail(reminder: {
   }
 }
 
-// Helper function to send booking notification email
+// Helper function to send booking notification email to admin and tutor
 async function sendBookingNotificationEmail(booking: {
   studentName: string;
   studentEmail: string;
   studentPhone: string | null;
   tutorName: string;
+  tutorEmail?: string | null;
   subject: string;
   hours: number;
   amount: number;
@@ -92,7 +93,8 @@ async function sendBookingNotificationEmail(booking: {
       return;
     }
 
-    const { data, error } = await resend.emails.send({
+    // Send to admin
+    const { data: adminData, error: adminError } = await resend.emails.send({
       from: 'Be Smart Tutorials <onboarding@resend.dev>',
       to: [NOTIFICATION_EMAIL],
       subject: `New Booking: ${booking.studentName} - ${booking.subject}`,
@@ -120,10 +122,47 @@ async function sendBookingNotificationEmail(booking: {
       `,
     });
 
-    if (error) {
-      console.error('Failed to send booking notification email:', error);
+    if (adminError) {
+      console.error('Failed to send booking notification email to admin:', adminError);
     } else {
-      console.log('Booking notification email sent successfully:', data?.id);
+      console.log('Booking notification email sent to admin successfully:', adminData?.id);
+    }
+
+    // Send to tutor if email is available
+    if (booking.tutorEmail) {
+      const { data: tutorData, error: tutorError } = await resend.emails.send({
+        from: 'Be Smart Tutorials <onboarding@resend.dev>',
+        to: [booking.tutorEmail],
+        subject: `New Student Booking: ${booking.studentName} - ${booking.subject}`,
+        html: `
+          <h2>You Have a New Tutoring Session!</h2>
+          <p>A student has booked a session with you.</p>
+          <p><strong>Student Details:</strong></p>
+          <ul>
+            <li><strong>Name:</strong> ${booking.studentName}</li>
+            <li><strong>Email:</strong> <a href="mailto:${booking.studentEmail}">${booking.studentEmail}</a></li>
+            <li><strong>Phone:</strong> ${booking.studentPhone || 'Not provided'}</li>
+          </ul>
+          <p><strong>Session Details:</strong></p>
+          <ul>
+            <li><strong>Subject:</strong> ${booking.subject}</li>
+            <li><strong>Duration:</strong> ${booking.hours} hour(s)</li>
+            <li><strong>Payment:</strong> R${booking.amount} (Paid)</li>
+            ${booking.slotDate ? `<li><strong>Date:</strong> ${booking.slotDate}</li>` : ''}
+            ${booking.slotTime ? `<li><strong>Time:</strong> ${booking.slotTime}</li>` : ''}
+            ${booking.meetingLink ? `<li><strong>Your Google Meet Link:</strong> <a href="${booking.meetingLink}">${booking.meetingLink}</a></li>` : ''}
+          </ul>
+          <p>Please prepare for the session and contact the student if needed.</p>
+          <hr>
+          <p style="color: #666; font-size: 12px;">This email was sent automatically by Be Smart Online Tutorials booking system.</p>
+        `,
+      });
+
+      if (tutorError) {
+        console.error('Failed to send booking notification email to tutor:', tutorError);
+      } else {
+        console.log('Booking notification email sent to tutor successfully:', tutorData?.id);
+      }
     }
   } catch (err) {
     console.error('Error sending booking notification email:', err);
@@ -1283,12 +1322,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }),
       });
 
-      // Send booking notification email to admin
+      // Send booking notification email to admin and tutor
       sendBookingNotificationEmail({
         studentName: normalizedName,
         studentEmail: normalizedEmail,
         studentPhone: studentPhone || null,
         tutorName: tutorProfile?.fullName || 'Unknown Tutor',
+        tutorEmail: tutorProfile?.email || null,
         subject: pendingBooking.subject,
         hours: pendingBooking.hours,
         amount: pendingBooking.amount,

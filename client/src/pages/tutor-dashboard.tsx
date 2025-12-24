@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useLocation } from 'wouter';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { queryClient, apiRequest } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
@@ -11,6 +12,7 @@ import { Calendar, Clock, LogOut, Loader2, GraduationCap, Plus, Trash2, Eye, Eye
 import type { Availability, TutorProfile } from '@shared/schema';
 
 export default function TutorDashboard() {
+  const [, setLocation] = useLocation();
   const { toast } = useToast();
   const [isSigningIn, setIsSigningIn] = useState(false);
   const [tutorToken, setTutorToken] = useState<string | null>(null);
@@ -126,6 +128,9 @@ export default function TutorDashboard() {
     setTutorToken(null);
     setTutorProfile(null);
     setLoginForm({ email: '', password: '' });
+    
+    // Redirect to home page
+    setLocation('/');
   };
 
   const { data: availabilities = [], isLoading: loadingAvailabilities } = useQuery<Availability[]>({

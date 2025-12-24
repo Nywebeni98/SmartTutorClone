@@ -69,6 +69,9 @@ export function BookingModal({ isOpen, onClose, tutor }: BookingModalProps) {
       if (lower.includes('physical science')) {
         if (!supportedSubjects.includes('Physical Sciences')) supportedSubjects.push('Physical Sciences');
       }
+      if (lower === 'physics') {
+        if (!supportedSubjects.includes('Physical Sciences')) supportedSubjects.push('Physical Sciences');
+      }
       if (lower.includes('english')) {
         if (!supportedSubjects.includes('English')) supportedSubjects.push('English');
       }

@@ -140,6 +140,7 @@ export function BookingModal({ isOpen, onClose, tutor }: BookingModalProps) {
           studentEmail: mutationStudentEmail,
           selectedSlotDetails: allAvailabilities.find(s => s.id === variables.availabilityId),
         };
+        sessionStorage.clear(); // Clear all old session data before setting new booking
         sessionStorage.setItem('pendingBooking', JSON.stringify(bookingInfo));
 
         // Redirect to Yoco payment link

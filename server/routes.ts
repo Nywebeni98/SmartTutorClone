@@ -87,11 +87,17 @@ async function sendBookingNotificationEmail(booking: {
   slotTime?: string;
   meetingLink?: string | null;
 }) {
+  console.log('=== SENDING BOOKING NOTIFICATION EMAIL ===');
+  console.log('Booking details:', JSON.stringify(booking, null, 2));
+  console.log('Admin email:', NOTIFICATION_EMAIL);
+  console.log('Tutor email:', booking.tutorEmail);
+  
   try {
     if (!process.env.RESEND_API_KEY) {
-      console.log('RESEND_API_KEY not configured, skipping email notification');
+      console.log('ERROR: RESEND_API_KEY not configured, skipping email notification');
       return;
     }
+    console.log('RESEND_API_KEY is configured, proceeding with email...');
 
     // Send to admin
     const { data: adminData, error: adminError } = await resend.emails.send({

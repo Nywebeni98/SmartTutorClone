@@ -207,8 +207,15 @@ export default function PaymentSuccess() {
                 <Copy className="h-4 w-4 mr-2" />
                 Copy Link to Clipboard
               </Button>
-              <AlertDialogAction className="w-full" data-testid="button-understand-dialog">
-                I Understand - Show My Booking Details
+              <AlertDialogAction 
+                className="w-full" 
+                data-testid="button-understand-dialog"
+                onClick={() => {
+                  setShowMeetingAlert(false);
+                  setLocation('/');
+                }}
+              >
+                I Understand - Go to Home Page
               </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>

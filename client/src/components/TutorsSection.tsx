@@ -236,46 +236,38 @@ export function TutorsSection() {
 
   // Convert featured tutor to TutorProfile format for booking modal
   // First check if there's a matching registered tutor to use the correct database ID
-  const handleBookFeaturedTutor = (tutor: Tutor) => {
-    console.log('[TutorsSection] handleBookFeaturedTutor called for:', tutor.name);
-    console.log('[TutorsSection] Featured tutor subjects:', tutor.subjects);
-    console.log('[TutorsSection] Approved tutors count:', approvedTutors.length);
-    
+  const handleBookFeaturedTutor = (featuredTutor: Tutor) => {
     // Try to find matching registered tutor by name to get correct database ID
     const matchingRegisteredTutor = approvedTutors.find(
-      t => t.fullName.toLowerCase() === tutor.name.toLowerCase() || 
-           t.supabaseUserId === tutor.id
+      t => t.fullName.toLowerCase() === featuredTutor.name.toLowerCase() || 
+           t.supabaseUserId === featuredTutor.id
     );
     
-    if (matchingRegisteredTutor) {
-      console.log('[TutorsSection] MATCHED DB tutor:', matchingRegisteredTutor.fullName);
-      console.log('[TutorsSection] MATCHED DB subjects:', JSON.stringify(matchingRegisteredTutor.subjects));
-      console.log('[TutorsSection] MATCHED DB full object:', JSON.stringify(matchingRegisteredTutor));
-      // Use the registered tutor data which has the correct database ID
-      setBookingTutor(matchingRegisteredTutor);
-    } else {
-      console.log('[TutorsSection] NO MATCH - using fallback with featured subjects:', tutor.subjects);
-      // Fallback to constructed profile (for tutors not in database)
-      const tutorProfile: TutorProfile = {
-        id: tutor.id,
-        supabaseUserId: tutor.id,
-        fullName: tutor.name,
-        email: tutor.id === 'lutho-hanjana' ? 'Luthohanjana125@gmail.com' : `${tutor.id}@besmartonline.co.za`,
-        passwordHash: null,
-        phone: null,
-        bio: tutor.bio,
-        subjects: tutor.subjects,
-        hourlyRate: tutor.hourlyRate,
-        photoUrl: String(tutor.image),
-        googleMeetUrl: tutor.googleMeetUrl,
-        isApproved: true,
-        isBlocked: false,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      };
-      console.log('[TutorsSection] Fallback tutorProfile subjects:', JSON.stringify(tutorProfile.subjects));
-      setBookingTutor(tutorProfile);
-    }
+    // ALWAYS create a profile with guaranteed subjects from the featured tutor data
+    // This ensures subjects are never empty, even if DB data is incomplete
+    const tutorProfile: TutorProfile = {
+      id: matchingRegisteredTutor?.id || featuredTutor.id,
+      supabaseUserId: matchingRegisteredTutor?.supabaseUserId || featuredTutor.id,
+      fullName: matchingRegisteredTutor?.fullName || featuredTutor.name,
+      email: matchingRegisteredTutor?.email || (featuredTutor.id === 'lutho-hanjana' ? 'Luthohanjana125@gmail.com' : `${featuredTutor.id}@besmartonline.co.za`),
+      passwordHash: matchingRegisteredTutor?.passwordHash || null,
+      phone: matchingRegisteredTutor?.phone || null,
+      bio: matchingRegisteredTutor?.bio || featuredTutor.bio,
+      // CRITICAL: Use featured tutor subjects as primary source (guaranteed to have data)
+      // Only use DB subjects if they exist and are non-empty
+      subjects: (matchingRegisteredTutor?.subjects && matchingRegisteredTutor.subjects.length > 0) 
+        ? matchingRegisteredTutor.subjects 
+        : featuredTutor.subjects,
+      hourlyRate: matchingRegisteredTutor?.hourlyRate || featuredTutor.hourlyRate,
+      photoUrl: matchingRegisteredTutor?.photoUrl || String(featuredTutor.image),
+      googleMeetUrl: matchingRegisteredTutor?.googleMeetUrl || featuredTutor.googleMeetUrl,
+      isApproved: matchingRegisteredTutor?.isApproved ?? true,
+      isBlocked: matchingRegisteredTutor?.isBlocked ?? false,
+      createdAt: matchingRegisteredTutor?.createdAt || new Date(),
+      updatedAt: matchingRegisteredTutor?.updatedAt || new Date(),
+    };
+    
+    setBookingTutor(tutorProfile);
     setBookingModalOpen(true);
   };
 

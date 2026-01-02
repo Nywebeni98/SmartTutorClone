@@ -237,8 +237,9 @@ export function TutorsSection() {
   // Convert featured tutor to TutorProfile format for booking modal
   // First check if there's a matching registered tutor to use the correct database ID
   const handleBookFeaturedTutor = (tutor: Tutor) => {
-    console.log('[TutorsSection] Looking for matching tutor:', tutor.name);
-    console.log('[TutorsSection] Approved tutors:', approvedTutors.map(t => ({ name: t.fullName, subjects: t.subjects })));
+    console.log('[TutorsSection] handleBookFeaturedTutor called for:', tutor.name);
+    console.log('[TutorsSection] Featured tutor subjects:', tutor.subjects);
+    console.log('[TutorsSection] Approved tutors count:', approvedTutors.length);
     
     // Try to find matching registered tutor by name to get correct database ID
     const matchingRegisteredTutor = approvedTutors.find(
@@ -246,12 +247,14 @@ export function TutorsSection() {
            t.supabaseUserId === tutor.id
     );
     
-    console.log('[TutorsSection] Matched tutor:', matchingRegisteredTutor ? { name: matchingRegisteredTutor.fullName, subjects: matchingRegisteredTutor.subjects } : 'none');
-    
     if (matchingRegisteredTutor) {
+      console.log('[TutorsSection] MATCHED DB tutor:', matchingRegisteredTutor.fullName);
+      console.log('[TutorsSection] MATCHED DB subjects:', JSON.stringify(matchingRegisteredTutor.subjects));
+      console.log('[TutorsSection] MATCHED DB full object:', JSON.stringify(matchingRegisteredTutor));
       // Use the registered tutor data which has the correct database ID
       setBookingTutor(matchingRegisteredTutor);
     } else {
+      console.log('[TutorsSection] NO MATCH - using fallback with featured subjects:', tutor.subjects);
       // Fallback to constructed profile (for tutors not in database)
       const tutorProfile: TutorProfile = {
         id: tutor.id,
@@ -270,6 +273,7 @@ export function TutorsSection() {
         createdAt: new Date(),
         updatedAt: new Date(),
       };
+      console.log('[TutorsSection] Fallback tutorProfile subjects:', JSON.stringify(tutorProfile.subjects));
       setBookingTutor(tutorProfile);
     }
     setBookingModalOpen(true);

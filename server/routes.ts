@@ -877,16 +877,74 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Fixed pricing for Yoco checkout validation
+  const YOCO_ALLOWED_PRICING: Record<string, Record<number, number>> = {
+    'Maths': { 1: 200, 2: 400 },
+    'English': { 1: 200, 2: 400 },
+    'History': { 1: 200, 2: 400 },
+    'CAT': { 1: 200, 2: 400 },
+    'Life Sciences': { 1: 200, 2: 400 },
+    'Geography': { 1: 200, 2: 400 },
+    'Physical Sciences': { 1: 250, 2: 500 },
+    'Afrikaans': { 1: 250, 2: 500 },
+  };
+
   // Yoco Payment Integration
   app.post("/api/yoco/create-checkout", async (req, res) => {
     try {
-      const { tutorId, tutorName, availabilityId, hours, amount, studentName, studentEmail, studentPhone } = req.body;
+      const { tutorId, tutorName, availabilityId, subject, studentName, studentEmail, studentPhone } = req.body;
+      const hours = Number(req.body.hours);
+      const amount = Number(req.body.amount);
+      
+      console.log("Yoco checkout request:", { tutorId, tutorName, subject, hours, amount, studentName, studentEmail });
+      
+      // Validate required fields
+      if (!tutorId || !subject || !hours || !amount || !studentName || !studentEmail) {
+        return res.status(400).json({
+          success: false,
+          message: "Missing required fields: tutorId, subject, hours, amount, studentName, studentEmail",
+        });
+      }
+
+      // Validate subject against allowed pricing
+      if (!YOCO_ALLOWED_PRICING[subject]) {
+        return res.status(400).json({
+          success: false,
+          message: `Invalid subject: ${subject}. Supported subjects: ${Object.keys(YOCO_ALLOWED_PRICING).join(', ')}`,
+        });
+      }
+
+      // Validate hours (1 or 2)
+      if (hours !== 1 && hours !== 2) {
+        return res.status(400).json({
+          success: false,
+          message: "Invalid hours. Only 1 or 2 hours are supported.",
+        });
+      }
+
+      // Validate amount matches fixed pricing (prevent underpayment attacks)
+      const expectedAmount = YOCO_ALLOWED_PRICING[subject][hours];
+      if (amount !== expectedAmount) {
+        return res.status(400).json({
+          success: false,
+          message: `Invalid amount. Expected R${expectedAmount} for ${subject} ${hours} hour(s), received R${amount}.`,
+        });
+      }
       
       const YOCO_SECRET_KEY = process.env.YOCO_SECRET_KEY;
       if (!YOCO_SECRET_KEY) {
         return res.status(500).json({
           success: false,
           message: "Payment system not configured. Please contact support.",
+        });
+      }
+
+      // Verify tutor exists
+      const tutorProfile = await storage.getTutorProfileById(tutorId);
+      if (!tutorProfile) {
+        return res.status(404).json({
+          success: false,
+          message: "Tutor not found",
         });
       }
 
@@ -1008,7 +1066,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
 
-      // Get tutor's Google Meet URL
+      // Get tutor's profile for meeting link and contact details
       const tutorProfile = await storage.getTutorProfileById(booking.tutorId);
       const meetingLink = tutorProfile?.googleMeetUrl || undefined;
 
@@ -1020,11 +1078,34 @@ export async function registerRoutes(app: Express): Promise<Server> {
         await storage.updateAvailability(booking.availabilityId, { isBooked: true });
       }
 
+      // Send booking notification email
+      try {
+        await sendBookingNotificationEmail({
+          studentName: booking.studentName,
+          studentEmail: booking.studentEmail,
+          studentPhone: booking.studentPhone || null,
+          tutorName: tutorProfile?.fullName || 'Unknown Tutor',
+          tutorEmail: tutorProfile?.email || null,
+          subject: 'Tutoring Session',
+          hours: booking.hours,
+          amount: booking.amount,
+          meetingLink,
+        });
+      } catch (emailError) {
+        console.error('Failed to send booking notification email:', emailError);
+      }
+
       res.json({
         success: true,
         message: "Payment completed successfully",
         booking: updatedBooking,
         meetingLink,
+        tutorDetails: tutorProfile ? {
+          name: tutorProfile.fullName,
+          email: tutorProfile.email,
+          phone: tutorProfile.phone,
+          googleMeetUrl: tutorProfile.googleMeetUrl,
+        } : null,
       });
     } catch (error) {
       console.error("Error completing payment:", error);
@@ -1036,7 +1117,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Fixed pricing configuration for pay-first flow
-  // Maths, English, History, CAT, Life Sciences = R200/hr
+  // Maths, English, History, CAT, Life Sciences, Geography = R200/hr
   // Physical Sciences, Afrikaans = R250/hr
   const ALLOWED_PRICING: Record<string, Record<number, number>> = {
     'Maths': { 1: 200, 2: 400 },
@@ -1044,6 +1125,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     'History': { 1: 200, 2: 400 },
     'CAT': { 1: 200, 2: 400 },
     'Life Sciences': { 1: 200, 2: 400 },
+    'Geography': { 1: 200, 2: 400 },
     'Physical Sciences': { 1: 250, 2: 500 },
     'Afrikaans': { 1: 250, 2: 500 },
   };

@@ -172,7 +172,7 @@ export function ChatWindow({
         const newMessages = messages.filter(m => !prev.some(p => p.id === m.id));
         if (newMessages.length === 0) return prev;
         return [...prev, ...newMessages].sort((a, b) => 
-          new Date(a.sentAt!).getTime() - new Date(b.sentAt!).getTime()
+          new Date(a.createdAt!).getTime() - new Date(b.createdAt!).getTime()
         );
       });
     }
@@ -267,7 +267,7 @@ export function ChatWindow({
                     <p className={`text-xs mt-1 ${
                       msg.senderEmail === userEmail ? 'text-primary-foreground/70' : 'text-muted-foreground'
                     }`}>
-                      {msg.sentAt && new Date(msg.sentAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                      {msg.createdAt && new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                     </p>
                   </div>
                 </div>

@@ -237,11 +237,16 @@ export function TutorsSection() {
   // Convert featured tutor to TutorProfile format for booking modal
   // First check if there's a matching registered tutor to use the correct database ID
   const handleBookFeaturedTutor = (tutor: Tutor) => {
+    console.log('[TutorsSection] Looking for matching tutor:', tutor.name);
+    console.log('[TutorsSection] Approved tutors:', approvedTutors.map(t => ({ name: t.fullName, subjects: t.subjects })));
+    
     // Try to find matching registered tutor by name to get correct database ID
     const matchingRegisteredTutor = approvedTutors.find(
       t => t.fullName.toLowerCase() === tutor.name.toLowerCase() || 
            t.supabaseUserId === tutor.id
     );
+    
+    console.log('[TutorsSection] Matched tutor:', matchingRegisteredTutor ? { name: matchingRegisteredTutor.fullName, subjects: matchingRegisteredTutor.subjects } : 'none');
     
     if (matchingRegisteredTutor) {
       // Use the registered tutor data which has the correct database ID

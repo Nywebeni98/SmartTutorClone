@@ -68,11 +68,15 @@ export function BookingModal({ isOpen, onClose, tutor }: BookingModalProps) {
   // Get subject options based on what the tutor actually teaches
   // Map tutor subjects to our supported payment subjects
   const getSubjectOptions = () => {
+    console.log('[BookingModal] tutor:', tutor?.fullName, 'subjects:', tutor?.subjects, 'type:', typeof tutor?.subjects, 'isArray:', Array.isArray(tutor?.subjects));
     if (!tutor?.subjects) return [];
+    
+    // Handle case where subjects might be a string instead of array
+    const subjectsArray = Array.isArray(tutor.subjects) ? tutor.subjects : [tutor.subjects];
     
     const supportedSubjects: string[] = [];
     
-    tutor.subjects.forEach(s => {
+    subjectsArray.forEach(s => {
       const lower = s.toLowerCase();
       if (lower.includes('maths') || lower.includes('mathematics')) {
         if (!supportedSubjects.includes('Maths')) supportedSubjects.push('Maths');

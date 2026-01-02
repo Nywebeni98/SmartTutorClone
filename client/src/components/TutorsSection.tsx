@@ -243,8 +243,18 @@ export function TutorsSection() {
            t.supabaseUserId === featuredTutor.id
     );
     
-    // ALWAYS create a profile with guaranteed subjects from the featured tutor data
-    // This ensures subjects are never empty, even if DB data is incomplete
+    console.log('[handleBookFeaturedTutor] Featured tutor:', featuredTutor.name);
+    console.log('[handleBookFeaturedTutor] Featured subjects:', featuredTutor.subjects);
+    console.log('[handleBookFeaturedTutor] Matching DB tutor:', matchingRegisteredTutor?.fullName);
+    console.log('[handleBookFeaturedTutor] DB subjects:', matchingRegisteredTutor?.subjects);
+    
+    // ALWAYS use featured tutor subjects as the SOURCE OF TRUTH
+    // The featured tutors array has guaranteed correct subjects
+    // DB may have stale or incorrectly formatted data
+    const guaranteedSubjects = featuredTutor.subjects;
+    
+    console.log('[handleBookFeaturedTutor] Using subjects:', guaranteedSubjects);
+    
     const tutorProfile: TutorProfile = {
       id: matchingRegisteredTutor?.id || featuredTutor.id,
       supabaseUserId: matchingRegisteredTutor?.supabaseUserId || featuredTutor.id,
@@ -253,11 +263,8 @@ export function TutorsSection() {
       passwordHash: matchingRegisteredTutor?.passwordHash || null,
       phone: matchingRegisteredTutor?.phone || null,
       bio: matchingRegisteredTutor?.bio || featuredTutor.bio,
-      // CRITICAL: Use featured tutor subjects as primary source (guaranteed to have data)
-      // Only use DB subjects if they exist and are non-empty
-      subjects: (matchingRegisteredTutor?.subjects && matchingRegisteredTutor.subjects.length > 0) 
-        ? matchingRegisteredTutor.subjects 
-        : featuredTutor.subjects,
+      // CRITICAL FIX: Always use featured tutor subjects - they are guaranteed correct
+      subjects: guaranteedSubjects,
       hourlyRate: matchingRegisteredTutor?.hourlyRate || featuredTutor.hourlyRate,
       photoUrl: matchingRegisteredTutor?.photoUrl || String(featuredTutor.image),
       googleMeetUrl: matchingRegisteredTutor?.googleMeetUrl || featuredTutor.googleMeetUrl,
@@ -266,6 +273,8 @@ export function TutorsSection() {
       createdAt: matchingRegisteredTutor?.createdAt || new Date(),
       updatedAt: matchingRegisteredTutor?.updatedAt || new Date(),
     };
+    
+    console.log('[handleBookFeaturedTutor] Final profile subjects:', tutorProfile.subjects);
     
     setBookingTutor(tutorProfile);
     setBookingModalOpen(true);

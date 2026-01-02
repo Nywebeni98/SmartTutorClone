@@ -80,8 +80,14 @@ export function BookingModal({ isOpen, onClose, tutor }: BookingModalProps) {
   // Get subject options based on what the tutor actually teaches
   // Map tutor subjects to our supported payment subjects
   const getSubjectOptions = () => {
-    if (!tutor?.subjects) {
-      console.log('[getSubjectOptions] No subjects found for tutor');
+    if (!tutor) {
+      // Modal not yet opened with a tutor - this is expected
+      return [];
+    }
+    
+    if (!tutor.subjects) {
+      console.log('[getSubjectOptions] No subjects found for tutor:', tutor.fullName);
+      console.log('[getSubjectOptions] Full tutor object:', JSON.stringify(tutor, null, 2));
       return [];
     }
     

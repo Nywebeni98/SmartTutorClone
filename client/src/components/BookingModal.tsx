@@ -42,19 +42,7 @@ export function BookingModal({ isOpen, onClose, tutor }: BookingModalProps) {
     }
   }, [user, isOpen]);
 
-  // Fixed pricing - no longer depends on payment_links table
-  // Maths, English, History, CAT, Life Sciences, Geography = R200/hr
-  // Physical Sciences, Afrikaans = R250/hr
-  const FIXED_PRICING: Record<string, number> = {
-    'Maths': 200,
-    'English': 200,
-    'History': 200,
-    'CAT': 200,
-    'Life Sciences': 200,
-    'Geography': 200,
-    'Physical Sciences': 250,
-    'Afrikaans': 250,
-  };
+  // Single reusable Yoco payment link - students enter their own amount
 
   // Fetch ALL available time slots from all tutors
   const { data: allAvailabilities = [], isLoading: loadingSlots } = useQuery<Availability[]>({
@@ -212,27 +200,14 @@ export function BookingModal({ isOpen, onClose, tutor }: BookingModalProps) {
       return;
     }
 
-    // Get the payment amount from fixed pricing
-    const hourlyRate = FIXED_PRICING[subject];
-    if (!hourlyRate) {
-      toast({
-        title: 'Invalid Selection',
-        description: 'Please select a valid subject.',
-        variant: 'destructive',
-      });
-      return;
-    }
-
-    const totalAmount = hourlyRate * parseInt(hours);
-
-    // Create booking and redirect to reusable Yoco payment link
+    // Create booking and redirect to reusable Yoco payment link (student enters amount on Yoco)
     createBookingMutation.mutate({
       tutorId: tutor.id,
       tutorName: tutor.fullName,
       availabilityId: selectedSlot || '',
       subject,
       hours: parseInt(hours),
-      amount: totalAmount,
+      amount: 0,
       studentName: studentName.trim(),
       studentEmail: studentEmail.trim(),
     });

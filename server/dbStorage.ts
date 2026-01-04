@@ -490,41 +490,7 @@ export class DbStorage implements IStorage {
 export async function initializeDatabase(storage: DbStorage) {
   console.log('Initializing database with default data...');
   
-  // Check if payment links exist, if not create them
-  const existingLinks = await storage.getAllPaymentLinks();
-  if (existingLinks.length === 0) {
-    console.log('Creating default payment links...');
-    
-    // Maths payment links
-    await storage.createPaymentLink({ subject: 'Maths', hours: 1, amount: 200, url: 'https://pay.yoco.com/r/4GQxeA' });
-    await storage.createPaymentLink({ subject: 'Maths', hours: 2, amount: 400, url: 'https://pay.yoco.com/r/25ZL1w' });
-    
-    // Physical Sciences payment links
-    await storage.createPaymentLink({ subject: 'Physical Sciences', hours: 1, amount: 250, url: 'https://pay.yoco.com/r/7vJexK' });
-    await storage.createPaymentLink({ subject: 'Physical Sciences', hours: 2, amount: 500, url: 'https://pay.yoco.com/r/4kQVPZ' });
-    
-    // English (same as Maths pricing)
-    await storage.createPaymentLink({ subject: 'English', hours: 1, amount: 200, url: 'https://pay.yoco.com/r/4GQxeA' });
-    await storage.createPaymentLink({ subject: 'English', hours: 2, amount: 400, url: 'https://pay.yoco.com/r/25ZL1w' });
-    
-    // History (same as Maths pricing)
-    await storage.createPaymentLink({ subject: 'History', hours: 1, amount: 200, url: 'https://pay.yoco.com/r/4GQxeA' });
-    await storage.createPaymentLink({ subject: 'History', hours: 2, amount: 400, url: 'https://pay.yoco.com/r/25ZL1w' });
-    
-    // CAT (same as Maths pricing)
-    await storage.createPaymentLink({ subject: 'CAT', hours: 1, amount: 200, url: 'https://pay.yoco.com/r/4GQxeA' });
-    await storage.createPaymentLink({ subject: 'CAT', hours: 2, amount: 400, url: 'https://pay.yoco.com/r/25ZL1w' });
-    
-    // Afrikaans (R250/hour - same as Physical Sciences pricing)
-    await storage.createPaymentLink({ subject: 'Afrikaans', hours: 1, amount: 250, url: 'https://pay.yoco.com/r/7vJexK' });
-    await storage.createPaymentLink({ subject: 'Afrikaans', hours: 2, amount: 500, url: 'https://pay.yoco.com/r/4kQVPZ' });
-    
-    // Life Sciences (same as Maths pricing - R200/hour)
-    await storage.createPaymentLink({ subject: 'Life Sciences', hours: 1, amount: 200, url: 'https://pay.yoco.com/r/4GQxeA' });
-    await storage.createPaymentLink({ subject: 'Life Sciences', hours: 2, amount: 400, url: 'https://pay.yoco.com/r/25ZL1w' });
-    
-    console.log('Payment links created successfully');
-  }
+  // Payment links removed - now using single reusable Yoco link: https://pay.yoco.com/smart-tutor1
   
   // Check if admin exists, if not create default admin
   const existingAdmin = await storage.getAdminByUsername('Lisa98');

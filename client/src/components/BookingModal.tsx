@@ -433,9 +433,12 @@ export function BookingModal({ isOpen, onClose, tutor }: BookingModalProps) {
                 <span>{hoursNum} hour(s)</span>
               </div>
               <div className="border-t pt-2 flex items-center justify-between font-semibold">
-                <span>Total:</span>
-                <span className="text-lg" data-testid="text-booking-total">R{displayAmount}</span>
+                <span>Amount to Pay:</span>
+                <span className="text-lg text-primary" data-testid="text-booking-total">R{displayAmount}</span>
               </div>
+              <p className="text-xs text-muted-foreground mt-2">
+                You will enter this amount on the Yoco payment page.
+              </p>
             </div>
           )}
 
@@ -455,13 +458,13 @@ export function BookingModal({ isOpen, onClose, tutor }: BookingModalProps) {
             ) : (
               <>
                 <CreditCard className="mr-2 h-4 w-4" />
-                Pay R{displayAmount} Now
+                Proceed to Payment
               </>
             )}
           </Button>
 
           <p className="text-xs text-center text-muted-foreground">
-            You will be redirected to Yoco secure payment page. After successful payment, you will enter your contact details and receive the Google Meet link.
+            You will be redirected to Yoco where you enter the amount above. After payment, please email proof of payment to <strong>onlinepresenceimpact@gmail.com</strong> including the tutor name and subject.
           </p>
         </div>
       </DialogContent>

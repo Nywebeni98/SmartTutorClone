@@ -26,7 +26,7 @@ interface Tutor {
   quote: string;
   hourlyRate: number;
   physicsRate?: number;
-  googleMeetUrl: string;
+  zoomUrl: string;
   highlights: {
     icon: typeof GraduationCap;
     title: string;
@@ -46,7 +46,7 @@ const tutors: Tutor[] = [
     bio: 'My name is Siyanda Stekela, and I am a professional Mathematics tutor with over 9 years of tutoring experience, specialising in all school grades and university-level Mathematics. I offer expert tutoring for both the CAPS curriculum and the Cambridge curriculum, supporting learners in achieving academic confidence and excellence.',
     quote: 'I am passionate about empowering students with the mathematical skills and confidence they need to succeed in their academic journey and beyond.',
     hourlyRate: 200,
-    googleMeetUrl: 'https://meet.google.com/auv-hbbs-nre',
+    zoomUrl: 'https://zoom.us/j/siyanda-stekela',
     highlights: [
       {
         icon: GraduationCap,
@@ -77,7 +77,7 @@ const tutors: Tutor[] = [
     quote: 'My goal is not only to help learners pass, but to help them excel. I guide learners step-by-step to improve their confidence and develop effective exam-writing strategies.',
     hourlyRate: 200,
     physicsRate: 250,
-    googleMeetUrl: 'https://meet.google.com/krq-nbsr-gnh',
+    zoomUrl: 'https://zoom.us/j/siboniso-shandu',
     highlights: [
       {
         icon: Target,
@@ -107,7 +107,7 @@ const tutors: Tutor[] = [
     bio: 'I am Thamsanqa Charles Ngonyama. I hold a Bachelor of Education in Senior and FET Phase (English and History) from the University of Johannesburg. I have tutored learners for a couple of years in English, History and CAT. I have always been passionate about teaching which is why I chose it as a career. My degree has equipped me with the necessary skills to create intervention plans for learners that have a hard time grasping content, which makes me the ideal tutor.',
     quote: 'Teaching is not just a career for me, it is my passion. I believe every learner can succeed with the right support and guidance.',
     hourlyRate: 200,
-    googleMeetUrl: 'https://meet.google.com/tha-msanqa-meet',
+    zoomUrl: 'https://zoom.us/j/thamsanqa-ngonyama',
     highlights: [
       {
         icon: GraduationCap,
@@ -138,7 +138,7 @@ const tutors: Tutor[] = [
     quote: 'Education is the key to unlocking potential. I am committed to helping every student achieve their academic goals.',
     hourlyRate: 200,
     physicsRate: 250,
-    googleMeetUrl: 'https://meet.google.com/tgv-tccd-ges',
+    zoomUrl: 'https://zoom.us/j/lutho-hanjana',
     highlights: [
       {
         icon: GraduationCap,
@@ -168,7 +168,7 @@ const tutors: Tutor[] = [
     bio: 'Ek is passievol oor Afrikaans en dit is my doel om hierdie pragtige taal met die jeug te deel! I am deeply passionate about teaching Afrikaans and helping students discover the beauty of this South African language. My unique teaching approach combines conversational practice with grammar fundamentals, making learning enjoyable and effective. "Afrikaans is nie net \'n taal nie, dit is \'n kultuur en \'n manier van lewe." Whether you\'re a beginner or looking to improve your fluency, I\'m here to guide you on your Afrikaans journey. Kom ons leer saam!',
     quote: 'Afrikaans is nie net \'n taal nie, dit is \'n kultuur en \'n manier van lewe.',
     hourlyRate: 250,
-    googleMeetUrl: 'https://meet.google.com/vht-jkxn-hii',
+    zoomUrl: 'https://zoom.us/j/luthando-manisi',
     highlights: [
       {
         icon: Heart,
@@ -199,7 +199,7 @@ const tutors: Tutor[] = [
     quote: 'Let me help upgrade your Maths and Science performance.',
     hourlyRate: 200,
     physicsRate: 250,
-    googleMeetUrl: 'https://meet.google.com/ase-mahle-meet',
+    zoomUrl: 'https://zoom.us/j/asemahle-dyalvan',
     highlights: [
       {
         icon: GraduationCap,
@@ -268,7 +268,7 @@ export function TutorsSection() {
       subjects: guaranteedSubjects,
       hourlyRate: matchingRegisteredTutor?.hourlyRate || featuredTutor.hourlyRate,
       photoUrl: matchingRegisteredTutor?.photoUrl || String(featuredTutor.image),
-      googleMeetUrl: matchingRegisteredTutor?.googleMeetUrl || featuredTutor.googleMeetUrl,
+      googleMeetUrl: matchingRegisteredTutor?.googleMeetUrl || featuredTutor.zoomUrl,
       isApproved: matchingRegisteredTutor?.isApproved ?? true,
       isBlocked: matchingRegisteredTutor?.isBlocked ?? false,
       createdAt: matchingRegisteredTutor?.createdAt || new Date(),
@@ -309,7 +309,7 @@ export function TutorsSection() {
               onlinepresenceimpact@gmail.com
             </p>
             <p className="text-lg sm:text-xl font-semibold text-orange-600 dark:text-orange-400 mt-3">
-              A Google Meet link will be shared with you.
+              A Zoom meeting link will be shared with you.
             </p>
             <p className="text-base sm:text-lg font-medium text-orange-600 dark:text-orange-400 mt-3">
               Please include the <span className="font-bold">TUTOR NAME</span> and <span className="font-bold">SUBJECT</span> you are booking in your email.
@@ -414,7 +414,7 @@ export function TutorsSection() {
                     </Button>
                     <p className="text-xs text-muted-foreground mt-2">
                       <Video className="w-3 h-3 inline mr-1" />
-                      Google Meet link provided after payment
+                      Zoom link provided after payment
                     </p>
                   </div>
                 </div>

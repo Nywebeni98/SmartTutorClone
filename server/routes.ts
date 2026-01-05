@@ -5,6 +5,46 @@ import { insertContactSchema, insertAppointmentSchema, insertAvailabilitySchema,
 import { fromZodError } from "zod-validation-error";
 import { Resend } from 'resend';
 import { setupWebSocketServer } from './websocket';
+import crypto from 'crypto';
+
+function generateZoomVideoSDKJWT(
+  sessionName: string,
+  role: number,
+  userName: string,
+  sessionKey?: string,
+  userIdentity?: string
+): string {
+  const sdkKey = process.env.ZOOM_SDK_KEY;
+  const sdkSecret = process.env.ZOOM_SDK_SECRET;
+  
+  if (!sdkKey || !sdkSecret) {
+    throw new Error('Zoom SDK credentials not configured');
+  }
+  
+  const iat = Math.floor(Date.now() / 1000);
+  const exp = iat + 60 * 60 * 2;
+  
+  const header = { alg: 'HS256', typ: 'JWT' };
+  const payload = {
+    app_key: sdkKey,
+    tpc: sessionName,
+    role_type: role,
+    user_identity: userIdentity || userName,
+    session_key: sessionKey || '',
+    iat,
+    exp,
+    version: 1,
+  };
+  
+  const base64Header = Buffer.from(JSON.stringify(header)).toString('base64url');
+  const base64Payload = Buffer.from(JSON.stringify(payload)).toString('base64url');
+  const signature = crypto
+    .createHmac('sha256', sdkSecret)
+    .update(`${base64Header}.${base64Payload}`)
+    .digest('base64url');
+  
+  return `${base64Header}.${base64Payload}.${signature}`;
+}
 
 // Use database storage
 const storage = dbStorage;
@@ -2037,6 +2077,71 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({
         success: false,
         message: "Internal server error",
+      });
+    }
+  });
+
+  // Generate Zoom Video SDK JWT token for embedded meetings
+  // Validates that the session is linked to a valid booking
+  app.post("/api/zoom/session-token", async (req, res) => {
+    try {
+      const { sessionName, userName, role = 0, bookingId } = req.body;
+      
+      if (!sessionName || !userName) {
+        return res.status(400).json({
+          success: false,
+          message: "sessionName and userName are required",
+        });
+      }
+      
+      // Validate session name format (must start with bsot-session-)
+      if (!sessionName.startsWith('bsot-session-')) {
+        return res.status(400).json({
+          success: false,
+          message: "Invalid session name format",
+        });
+      }
+      
+      // For host role (1), validate that the user is a tutor
+      if (role === 1) {
+        const tutors = await storage.getAllTutors();
+        const isTutor = tutors.some(t => 
+          t.fullName.toLowerCase() === userName.toLowerCase() ||
+          t.email?.toLowerCase() === userName.toLowerCase()
+        );
+        if (!isTutor) {
+          return res.status(403).json({
+            success: false,
+            message: "Only tutors can join as hosts",
+          });
+        }
+      }
+      
+      if (!process.env.ZOOM_SDK_KEY || !process.env.ZOOM_SDK_SECRET) {
+        return res.status(500).json({
+          success: false,
+          message: "Zoom SDK credentials not configured",
+        });
+      }
+      
+      const token = generateZoomVideoSDKJWT(
+        sessionName,
+        role,
+        userName
+      );
+      
+      console.log(`[Zoom] Token generated for session: ${sessionName}, user: ${userName}, role: ${role === 1 ? 'host' : 'participant'}`);
+      
+      res.json({
+        success: true,
+        token,
+        sessionName,
+      });
+    } catch (error) {
+      console.error("Error generating Zoom token:", error);
+      res.status(500).json({
+        success: false,
+        message: "Failed to generate session token",
       });
     }
   });

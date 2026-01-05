@@ -150,10 +150,7 @@ export function BookingModal({ isOpen, onClose, tutor }: BookingModalProps) {
         sessionStorage.setItem('pendingBookingId', data.bookingId);
         sessionStorage.setItem('bookingTutorName', data.tutorName || '');
         sessionStorage.setItem('bookingSubject', data.subject || '');
-        // Store tutor's Zoom link for after payment
-        if (tutor?.googleMeetUrl) {
-          sessionStorage.setItem('tutorZoomUrl', tutor.googleMeetUrl);
-        }
+        sessionStorage.setItem('studentName', studentName.trim());
 
         // Redirect to reusable Yoco payment link
         window.location.href = YOCO_PAYMENT_LINK;

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import { Link } from 'wouter';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
@@ -316,13 +317,15 @@ export function TutorsSection() {
             </p>
             
             <Button
-              onClick={() => window.location.href = '/payment/success'}
+              asChild
               className="mt-6 bg-blue-600 hover:bg-blue-700 text-white text-lg px-8 py-6 h-auto"
               size="lg"
               data-testid="button-join-zoom-home"
             >
-              <Video className="w-6 h-6 mr-2" />
-              Join Zoom
+              <Link href="/payment/success">
+                <Video className="w-6 h-6 mr-2" />
+                Join Zoom
+              </Link>
             </Button>
           </div>
         </div>

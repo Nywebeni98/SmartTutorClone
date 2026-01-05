@@ -14,6 +14,7 @@ import thamsanqaImage from '@assets/WhatsApp_Image_2025-12-05_at_11.28.31_2db176
 import luthoImage from '@assets/WhatsApp_Image_2025-12-19_at_21.46.00_22d812e3_1766264032532.jpg';
 import luthandoImage from '@assets/WhatsApp_Image_2025-12-22_at_15.52.01_0c22999e_1766433068327.jpg';
 import asemahleImage from '@assets/WhatsApp_Image_2026-01-04_at_11.09.55_1767625249410.jpeg';
+import milisaImage from '@assets/WhatsApp_Image_2026-01-01_at_19.45.33_bdba9873_1767653194048.jpg';
 
 interface Tutor {
   id: string;
@@ -216,6 +217,36 @@ const tutors: Tutor[] = [
         icon: Heart,
         title: 'Born Educator',
         description: 'Raised by a teacher, tutoring is in my blood. Passionate about helping students truly understand and excel.',
+      },
+    ],
+  },
+  {
+    id: 'milisa-matshintsana',
+    name: 'Milisa Matshintsana',
+    title: 'Geography Tutor',
+    image: milisaImage,
+    subjects: ['Geography'],
+    experience: 'Dedicated Educator',
+    education: 'Geography Specialist',
+    bio: 'I am passionate about Geography and helping students explore and understand the world around them. From physical landscapes to human environments, I make Geography come alive through engaging lessons and real-world examples. My goal is to help learners develop a deeper appreciation for our planet while achieving academic success.',
+    quote: 'Geography helps us understand our world and our place in it.',
+    hourlyRate: 200,
+    zoomUrl: 'https://zoom.us/j/milisa-matshintsana',
+    highlights: [
+      {
+        icon: Target,
+        title: 'World Explorer',
+        description: 'Passionate about helping students explore and understand physical and human geography concepts.',
+      },
+      {
+        icon: Lightbulb,
+        title: 'Engaging Lessons',
+        description: 'Makes Geography come alive through real-world examples and interactive teaching methods.',
+      },
+      {
+        icon: Star,
+        title: 'Student Success Focus',
+        description: 'Dedicated to helping learners develop understanding and achieve academic excellence in Geography.',
       },
     ],
   },

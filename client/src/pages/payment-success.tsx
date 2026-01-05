@@ -9,13 +9,32 @@ import { Label } from "@/components/ui/label";
 export default function PaymentSuccess() {
   const [zoomLink, setZoomLink] = useState('');
 
+  // Extract URL from pasted text (handles full email text with "Click https://... to start")
+  const extractUrl = (text: string): string => {
+    const trimmed = text.trim();
+    
+    // Try to find a URL in the text
+    const urlPattern = /(https?:\/\/[^\s]+)/gi;
+    const matches = trimmed.match(urlPattern);
+    
+    if (matches && matches.length > 0) {
+      // Return the first URL found, removing any trailing punctuation
+      return matches[0].replace(/[.,;:!?)]+$/, '');
+    }
+    
+    // If no URL found, return the original text
+    return trimmed;
+  };
+
   const handleJoinSession = () => {
-    if (zoomLink.trim()) {
-      window.open(zoomLink.trim(), '_blank');
+    const url = extractUrl(zoomLink);
+    if (url) {
+      window.open(url, '_blank');
     }
   };
 
-  const isValidZoomLink = zoomLink.trim().includes('zoom.us') || zoomLink.trim().startsWith('https://');
+  const extractedUrl = extractUrl(zoomLink);
+  const isValidLink = extractedUrl.startsWith('https://') || extractedUrl.startsWith('http://');
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 p-4 flex items-center justify-center">
@@ -47,11 +66,16 @@ export default function PaymentSuccess() {
                   data-testid="input-zoom-link"
                 />
               </div>
+              {zoomLink.trim() && isValidLink && extractedUrl !== zoomLink.trim() && (
+                <p className="text-sm text-green-600 dark:text-green-400">
+                  Detected link: {extractedUrl.substring(0, 50)}...
+                </p>
+              )}
             </div>
 
             <Button 
               onClick={handleJoinSession}
-              disabled={!zoomLink.trim()}
+              disabled={!zoomLink.trim() || !isValidLink}
               className="w-full bg-blue-600 hover:bg-blue-700 text-lg py-6 h-auto"
               size="lg"
               data-testid="button-join-zoom"
@@ -60,9 +84,9 @@ export default function PaymentSuccess() {
               Join Zoom Session
             </Button>
 
-            {zoomLink.trim() && !isValidZoomLink && (
+            {zoomLink.trim() && !isValidLink && (
               <p className="text-sm text-amber-600 dark:text-amber-400 text-center">
-                Make sure you paste the complete Zoom link from your email.
+                No valid link detected. Make sure to paste the complete Zoom invitation.
               </p>
             )}
           </CardContent>

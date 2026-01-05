@@ -308,7 +308,7 @@ export function TutorsSection() {
             <p className="text-2xl sm:text-3xl font-bold text-orange-700 dark:text-orange-300 mt-2">
               onlinepresenceimpact@gmail.com
             </p>
-            <p className="text-lg sm:text-xl font-semibold text-orange-600 dark:text-orange-400 mt-3">
+            <p className="text-xl sm:text-2xl font-bold text-orange-700 dark:text-orange-300 mt-4 bg-orange-200 dark:bg-orange-800/50 py-2 px-4 rounded-lg inline-block">
               A Zoom meeting link will be shared with you.
             </p>
             <p className="text-base sm:text-lg font-medium text-orange-600 dark:text-orange-400 mt-3">

@@ -1,16 +1,32 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "wouter";
-import { CheckCircle, Mail } from "lucide-react";
+import { CheckCircle, Mail, Video } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default function PaymentSuccess() {
-  const tutorName = sessionStorage.getItem('bookingTutorName') || 'your tutor';
-  const subject = sessionStorage.getItem('bookingSubject') || 'your subject';
+  const [tutorName, setTutorName] = useState('your tutor');
+  const [subject, setSubject] = useState('your subject');
+  const [zoomUrl, setZoomUrl] = useState<string | null>(null);
 
   useEffect(() => {
     document.title = "Payment Successful - Be Smart Online Tutorials";
+    
+    // Get booking info from session storage
+    const storedTutorName = sessionStorage.getItem('bookingTutorName');
+    const storedSubject = sessionStorage.getItem('bookingSubject');
+    const storedZoomUrl = sessionStorage.getItem('tutorZoomUrl');
+    
+    if (storedTutorName) setTutorName(storedTutorName);
+    if (storedSubject) setSubject(storedSubject);
+    if (storedZoomUrl) setZoomUrl(storedZoomUrl);
   }, []);
+
+  const handleJoinZoom = () => {
+    if (zoomUrl) {
+      window.open(zoomUrl, '_blank');
+    }
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-50 to-emerald-100 dark:from-gray-900 dark:to-gray-800 p-4">
@@ -49,7 +65,30 @@ export default function PaymentSuccess() {
             </div>
           </div>
 
-          <Button asChild className="w-full mt-4" data-testid="button-back-home">
+          {zoomUrl && (
+            <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+              <div className="flex flex-col items-center gap-3">
+                <Video className="w-8 h-8 text-blue-600 dark:text-blue-400" />
+                <p className="font-medium text-blue-800 dark:text-blue-300">
+                  Ready to join your session?
+                </p>
+                <Button
+                  onClick={handleJoinZoom}
+                  className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+                  size="lg"
+                  data-testid="button-join-zoom"
+                >
+                  <Video className="w-5 h-5 mr-2" />
+                  Join Zoom Meeting
+                </Button>
+                <p className="text-xs text-blue-600 dark:text-blue-400">
+                  Your tutor will start the meeting at your scheduled time
+                </p>
+              </div>
+            </div>
+          )}
+
+          <Button asChild className="w-full mt-4" variant="outline" data-testid="button-back-home">
             <Link href="/">Back to Home</Link>
           </Button>
         </CardContent>

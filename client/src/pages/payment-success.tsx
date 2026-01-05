@@ -1,34 +1,38 @@
 import { useEffect, useState } from "react";
 import { Link } from "wouter";
-import { CheckCircle, Mail, Video } from "lucide-react";
+import { CheckCircle, Mail, Video, Link2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { ZoomSession } from "@/components/ZoomSession";
 
 export default function PaymentSuccess() {
   const [tutorName, setTutorName] = useState('your tutor');
   const [subject, setSubject] = useState('your subject');
-  const [bookingId, setBookingId] = useState<string | null>(null);
   const [studentName, setStudentName] = useState('Student');
+  const [sessionId, setSessionId] = useState('');
+  const [showZoom, setShowZoom] = useState(false);
 
   useEffect(() => {
     document.title = "Payment Successful - Be Smart Online Tutorials";
     
     const storedTutorName = sessionStorage.getItem('bookingTutorName');
     const storedSubject = sessionStorage.getItem('bookingSubject');
-    const storedBookingId = sessionStorage.getItem('pendingBookingId');
+    const storedStudentName = sessionStorage.getItem('studentName');
     
     if (storedTutorName) setTutorName(storedTutorName);
     if (storedSubject) setSubject(storedSubject);
-    if (storedBookingId) setBookingId(storedBookingId);
-    
-    const storedStudentName = sessionStorage.getItem('studentName') || 'Student';
-    setStudentName(storedStudentName);
+    if (storedStudentName) setStudentName(storedStudentName);
   }, []);
 
-  const sessionName = bookingId 
-    ? `bsot-session-${bookingId}` 
-    : `bsot-session-${Date.now()}`;
+  const handleJoinSession = () => {
+    if (sessionId.trim()) {
+      setShowZoom(true);
+    }
+  };
+
+  const sessionName = sessionId.trim() ? `bsot-session-${sessionId.trim()}` : '';
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 to-emerald-100 dark:from-gray-900 dark:to-gray-800 p-4">
@@ -70,13 +74,54 @@ export default function PaymentSuccess() {
           </CardContent>
         </Card>
 
-        <ZoomSession
-          sessionName={sessionName}
-          userName={studentName}
-          tutorName={tutorName}
-          subject={subject}
-          isHost={false}
-        />
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Video className="w-5 h-5 text-blue-600" />
+              Join Your Tutoring Session
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <p className="text-muted-foreground text-sm">
+              Your tutor will provide you with a session ID. Enter it below to join your video session.
+            </p>
+            
+            <div className="space-y-2">
+              <Label htmlFor="sessionId">Session ID</Label>
+              <div className="flex gap-2">
+                <div className="relative flex-1">
+                  <Link2 className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                  <Input
+                    id="sessionId"
+                    placeholder="Enter session ID from your tutor"
+                    value={sessionId}
+                    onChange={(e) => setSessionId(e.target.value)}
+                    className="pl-10"
+                    data-testid="input-session-id"
+                  />
+                </div>
+                <Button 
+                  onClick={handleJoinSession}
+                  disabled={!sessionId.trim()}
+                  className="bg-blue-600 hover:bg-blue-700"
+                  data-testid="button-join-with-id"
+                >
+                  Join
+                </Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {showZoom && sessionName && (
+          <ZoomSession
+            sessionName={sessionName}
+            userName={studentName}
+            tutorName={tutorName}
+            subject={subject}
+            isHost={false}
+          />
+        )}
 
         <div className="text-center">
           <Button asChild variant="outline" data-testid="button-back-home">

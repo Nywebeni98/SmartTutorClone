@@ -314,6 +314,16 @@ export function TutorsSection() {
             <p className="text-base sm:text-lg font-medium text-orange-600 dark:text-orange-400 mt-3">
               Please include the <span className="font-bold">TUTOR NAME</span> and <span className="font-bold">SUBJECT</span> you are booking in your email.
             </p>
+            
+            <Button
+              onClick={() => window.location.href = '/payment/success'}
+              className="mt-6 bg-blue-600 hover:bg-blue-700 text-white text-lg px-8 py-6 h-auto"
+              size="lg"
+              data-testid="button-join-zoom-home"
+            >
+              <Video className="w-6 h-6 mr-2" />
+              Join Zoom
+            </Button>
           </div>
         </div>
 

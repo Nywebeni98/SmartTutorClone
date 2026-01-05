@@ -12,6 +12,7 @@ import sibonisoImage from '@assets/WhatsApp_Image_2025-11-23_at_10.05.37_30c8290
 import thamsanqaImage from '@assets/WhatsApp_Image_2025-12-05_at_11.28.31_2db17684_1764958250135.jpg';
 import luthoImage from '@assets/WhatsApp_Image_2025-12-19_at_21.46.00_22d812e3_1766264032532.jpg';
 import luthandoImage from '@assets/WhatsApp_Image_2025-12-22_at_15.52.01_0c22999e_1766433068327.jpg';
+import asemahleImage from '@assets/WhatsApp_Image_2026-01-04_at_11.09.55_1767625249410.jpeg';
 
 interface Tutor {
   id: string;
@@ -183,6 +184,37 @@ const tutors: Tutor[] = [
         icon: Users,
         title: 'All Levels Welcome',
         description: 'Whether you\'re a beginner or looking to improve fluency, expert guidance on your Afrikaans journey awaits.',
+      },
+    ],
+  },
+  {
+    id: 'asemahle-dyalvan',
+    name: 'Asemahle Dyalvan',
+    title: 'Maths & Science Specialist',
+    image: asemahleImage,
+    subjects: ['Maths', 'Physical Sciences', 'Life Sciences'],
+    experience: '6+ Years Experience',
+    education: 'BSc Biotechnology Student - UWC',
+    bio: 'Hi, I\'m Asemahle, an undergraduate Biotechnology student at the University of the Western Cape (UWC). I have 6 years of tutoring experience, working both independently and with established tutoring companies such as Preeva. Birthed by a teacher, tutoring came naturally to me, and I am deeply passionate about helping students understand and excel. I specialise in Maths and Science, using clear explanations and learner-focused methods to build confidence and improve results.',
+    quote: 'Let me help upgrade your Maths and Science performance.',
+    hourlyRate: 200,
+    physicsRate: 250,
+    googleMeetUrl: 'https://meet.google.com/ase-mahle-meet',
+    highlights: [
+      {
+        icon: GraduationCap,
+        title: 'Science Background',
+        description: 'Undergraduate Biotechnology student at UWC, bringing strong scientific knowledge to tutoring sessions.',
+      },
+      {
+        icon: Star,
+        title: 'Proven Experience',
+        description: '6 years of tutoring experience with both independent work and established companies like Preeva.',
+      },
+      {
+        icon: Heart,
+        title: 'Born Educator',
+        description: 'Raised by a teacher, tutoring is in my blood. Passionate about helping students truly understand and excel.',
       },
     ],
   },

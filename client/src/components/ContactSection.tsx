@@ -62,7 +62,7 @@ export function ContactSection() {
     {
       icon: MapPin,
       title: 'Location',
-      content: 'Cape Town, South Africa',
+      content: 'South Africa',
       color: 'hsl(var(--brand-blue))',
       bgColor: 'hsl(var(--brand-blue) / 0.2)',
     },
@@ -274,7 +274,7 @@ export function ContactSection() {
             >
               <p className="text-center text-muted-foreground leading-relaxed">
                 <span className="font-semibold" style={{ color: 'hsl(var(--brand-blue))' }}>
-                  Proudly serving students in Cape Town.
+                  Proudly serving students in South Africa.
                 </span>
                 <br />
                 Together, we're building a brighter future through education.

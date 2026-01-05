@@ -73,10 +73,10 @@ export function AboutSection() {
                     style={{ color: 'hsl(var(--brand-yellow))' }}
                     data-testid="text-location-heading"
                   >
-                    Proudly Serving Cape Town
+                    Proudly Serving South Africa
                   </h3>
                   <p className="text-muted-foreground leading-relaxed">
-                    Based in Cape Town, South Africa, we're committed to 
+                    Based in South Africa, we're committed to 
                     building a brighter future for our community through education.
                   </p>
                 </div>

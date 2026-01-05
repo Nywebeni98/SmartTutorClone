@@ -57,7 +57,7 @@ export function Footer() {
               </div>
             </div>
             <p className="text-sm text-muted-foreground leading-relaxed">
-              Quality tutoring services in Cape Town, South Africa. 
+              Quality tutoring services in South Africa. 
               Empowering students to achieve academic excellence.
             </p>
             {/* Social media icons */}
@@ -156,7 +156,7 @@ export function Footer() {
                   style={{ color: 'hsl(var(--brand-orange))' }}
                 />
                 <span className="text-sm text-muted-foreground">
-                  Cape Town, South Africa
+                  South Africa
                 </span>
               </li>
             </ul>
@@ -180,7 +180,7 @@ export function Footer() {
                 className="font-semibold"
                 style={{ color: 'hsl(var(--brand-orange))' }}
               >
-                Cape Town, South Africa
+                South Africa
               </span>
             </p>
           </div>

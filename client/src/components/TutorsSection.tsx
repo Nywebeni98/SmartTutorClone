@@ -15,6 +15,7 @@ import luthoImage from '@assets/WhatsApp_Image_2025-12-19_at_21.46.00_22d812e3_1
 import luthandoImage from '@assets/WhatsApp_Image_2025-12-22_at_15.52.01_0c22999e_1766433068327.jpg';
 import asemahleImage from '@assets/WhatsApp_Image_2026-01-04_at_11.09.55_1767625249410.jpeg';
 import milisaImage from '@assets/WhatsApp_Image_2026-01-01_at_19.45.33_bdba9873_1767653194048.jpg';
+import mhlangovuyoImage from '@assets/WhatsApp_Image_2026-01-05_at_17.30.22_1767653571338.jpeg';
 
 interface Tutor {
   id: string;
@@ -28,6 +29,7 @@ interface Tutor {
   quote: string;
   hourlyRate: number;
   physicsRate?: number;
+  backendRate?: number;
   zoomUrl: string;
   highlights: {
     icon: typeof GraduationCap;
@@ -247,6 +249,37 @@ const tutors: Tutor[] = [
         icon: Star,
         title: 'Student Success Focus',
         description: 'Dedicated to helping learners develop understanding and achieve academic excellence in Geography.',
+      },
+    ],
+  },
+  {
+    id: 'mhlangovuyo-balfour',
+    name: 'Mhlangovuyo Balfour',
+    title: 'Full-Stack Developer & IT Tutor',
+    image: mhlangovuyoImage,
+    subjects: ['Frontend Development', 'Backend Development'],
+    experience: '3+ Years Experience',
+    education: 'Full-Stack Developer',
+    bio: 'My name is Mhlangovuyo Balfour, and I am a Full-Stack Developer with 3 years of hands-on experience building robust and scalable applications. I specialise in backend development (C#, SQL, MongoDB) and frontend development using React, JavaScript, HTML, and CSS. I am passionate about technology and also enjoy mentoring others to understand and apply development concepts effectively.',
+    quote: 'Technology empowers us to build the future, one line of code at a time.',
+    hourlyRate: 220,
+    backendRate: 285,
+    zoomUrl: 'https://zoom.us/j/mhlangovuyo-balfour',
+    highlights: [
+      {
+        icon: GraduationCap,
+        title: 'Full-Stack Expertise',
+        description: 'Proficient in both frontend (React, JavaScript, HTML, CSS) and backend (C#, SQL, MongoDB) development.',
+      },
+      {
+        icon: Star,
+        title: '3 Years Industry Experience',
+        description: 'Hands-on experience building robust and scalable applications in real-world environments.',
+      },
+      {
+        icon: Heart,
+        title: 'Passionate Mentor',
+        description: 'Dedicated to helping others understand and apply development concepts effectively.',
       },
     ],
   },

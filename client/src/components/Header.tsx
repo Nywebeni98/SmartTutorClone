@@ -1,7 +1,7 @@
 // Header component with large Be Smart logo and Google Sign-In button
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Menu, X, GraduationCap, ShieldCheck } from 'lucide-react';
+import { Menu, X, GraduationCap, ShieldCheck, Package } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
@@ -27,16 +27,22 @@ export function Header() {
     { label: 'Subjects', href: '#subjects' },
     { label: 'About', href: '#about' },
     { label: 'Tutors', href: '#tutors' },
+    { label: 'Packages', href: '/packages', isPage: true },
     { label: 'Contact', href: '#contact' },
   ];
 
-  // Handle smooth scrolling to sections
-  const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
+  // Handle smooth scrolling to sections or page navigation
+  const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string, isPage?: boolean) => {
     e.preventDefault();
-    const element = document.querySelector(href);
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth' });
+    if (isPage) {
+      setLocation(href);
       setMobileMenuOpen(false);
+    } else {
+      const element = document.querySelector(href);
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth' });
+        setMobileMenuOpen(false);
+      }
     }
   };
 
@@ -76,7 +82,7 @@ export function Header() {
               <a
                 key={item.label}
                 href={item.href}
-                onClick={(e) => handleNavClick(e, item.href)}
+                onClick={(e) => handleNavClick(e, item.href, item.isPage)}
                 className="text-foreground hover:text-primary font-medium transition-colors hover-elevate px-3 py-2 rounded-md"
                 data-testid={`link-nav-${item.label.toLowerCase()}`}
               >
@@ -177,7 +183,7 @@ export function Header() {
               <a
                 key={item.label}
                 href={item.href}
-                onClick={(e) => handleNavClick(e, item.href)}
+                onClick={(e) => handleNavClick(e, item.href, item.isPage)}
                 className="block px-4 py-3 rounded-md hover-elevate text-foreground hover:text-primary font-medium"
                 data-testid={`link-mobile-nav-${item.label.toLowerCase()}`}
               >

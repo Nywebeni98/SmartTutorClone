@@ -1,0 +1,147 @@
+Perfect 👍 I’ll do exactly what you asked, based only on YOUR packages and YOUR subjects, and I’ll make sure the Replit prompt clearly says to use the subjects already defined in the code (no new subjects invented).
+
+I’ll give you two things:
+
+1️⃣ Professional website text (copy) you can paste on your pricing page
+2️⃣ A clean, ready-to-paste REPLIT AI PROMPT (very important)
+
+1️⃣ WEBSITE PRICING COPY (USE THIS ON YOUR SITE)
+
+You can paste this directly into your website or give it to Replit AI.
+
+📚 Monthly Online Tutoring Packages
+
+Our monthly tutoring packages are designed to give learners consistent support, clear structure, and better results.
+All packages are based on our standard rate of R200 per hour, with discounted pricing for monthly commitment.
+
+🟢 BASIC PACKAGE – R750 / month
+
+Best for learners who need support in one subject
+
+✔ 1 subject
+
+✔ 1 session per week
+
+✔ 1 hour per session
+
+✔ Total: 4 hours per month
+
+✔ Save R50 compared to hourly rate
+
+Ideal for: revision, homework support, and steady improvement.
+
+🔵 STANDARD PACKAGE – R1,500 / month
+
+⭐ Most Popular Package
+
+✔ 2 subjects
+
+✔ 2 sessions per week (1 per subject)
+
+✔ 1 hour per session
+
+✔ Total: 8 hours per month
+
+✔ Save R100 compared to hourly rate
+
+Ideal for: balanced academic support across multiple subjects.
+
+🟣 PREMIUM PACKAGE – R3,200 / month
+
+Best for exam preparation and intensive support
+
+✔ 3 subjects
+
+✔ 3 sessions per week (1 per subject)
+
+✔ 1.5 hours per session
+
+✔ Total: 18 hours per month
+
+✔ Save R400 compared to hourly rate
+
+Ideal for: exam preparation, deep understanding, and fast progress.
+
+📘 Available Subjects
+
+Learners can choose subjects based on the selected package:
+
+Mathematics
+
+Physical Sciences
+
+Geography
+
+Accounting
+
+Life Sciences
+
+Coding
+
+⚠️ Subject selection is limited by the package chosen.
+
+2️⃣ REPLIT AI PROMPT (VERY IMPORTANT 🔥)
+
+👉 Copy EVERYTHING below and paste it into Replit AI
+
+Build a tutoring packages page using React.
+
+Important:
+- USE ONLY the subjects that already exist in the project code.
+- Do NOT create or invent new subjects.
+- Read subjects dynamically from the existing subjects list in the code.
+
+Packages to display:
+
+Basic Package
+- Price: R750 per month
+- Subjects allowed: 1
+- Sessions: 1 session per week
+- Session length: 1 hour
+- Total hours per month: 4
+
+Standard Package
+- Price: R1,500 per month
+- Subjects allowed: 2
+- Sessions: 2 sessions per week (1 per subject)
+- Session length: 1 hour
+- Total hours per month: 8
+- Mark this package as "Most Popular"
+
+Premium Package
+- Price: R3,200 per month
+- Subjects allowed: 3
+- Sessions: 3 sessions per week (1 per subject)
+- Session length: 1.5 hours
+- Total hours per month: 18
+
+Functionality:
+- User must select a package first
+- After selecting a package, show subject selection buttons
+- Subjects must come from the existing subjects array in the code
+- Limit subject selection based on the selected package
+- Disable subject buttons once the limit is reached
+- Clearly display selected subjects
+- Include a "Continue to Payment" button (payment logic placeholder)
+
+UI Requirements:
+- Clean, professional tutoring website layout
+- Card-based design for packages
+- Buttons for subject selection
+- Mobile responsive
+- Clear pricing and package details
+
+Do NOT include backend logic.
+Focus only on frontend functionality and state management.
+
+💡 EXTRA BUSINESS TIP (VERY IMPORTANT)
+
+On your website:
+
+Push STANDARD as default selection
+
+Add text like:
+
+“Save more with monthly packages compared to pay-as-you-go lessons.”
+
+This increases conversions 👌

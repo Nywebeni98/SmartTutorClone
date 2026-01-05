@@ -7,6 +7,7 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import Home from "@/pages/home";
 import TutorDashboard from "@/pages/tutor-dashboard";
 import AdminDashboard from "@/pages/admin-dashboard";
+import MonthlyPackages from "@/pages/monthly-packages";
 import PaymentSuccess from "@/pages/payment-success";
 import PaymentFailure from "@/pages/payment-failure";
 import PaymentCancel from "@/pages/payment-cancel";
@@ -24,6 +25,9 @@ function Router() {
       
       {/* Admin dashboard - protected route */}
       <Route path="/admin" component={AdminDashboard} />
+      
+      {/* Monthly packages page */}
+      <Route path="/packages" component={MonthlyPackages} />
       
       {/* Payment callback pages */}
       <Route path="/payment/success" component={PaymentSuccess} />

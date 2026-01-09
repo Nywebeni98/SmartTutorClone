@@ -183,6 +183,7 @@ export function TutorAuthModal({ isOpen, onClose }: TutorAuthModalProps) {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
+                autoComplete="email"
                 data-testid="input-tutor-email"
               />
             </div>
@@ -197,6 +198,7 @@ export function TutorAuthModal({ isOpen, onClose }: TutorAuthModalProps) {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
+                  autoComplete="current-password"
                   data-testid="input-tutor-password"
                 />
                 <Button

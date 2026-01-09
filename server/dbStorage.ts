@@ -554,6 +554,15 @@ export async function initializeDatabase(storage: DbStorage) {
         googleMeetUrl: 'https://meet.google.com/vht-jkxn-hii',
         photoUrl: '/attached_assets/WhatsApp_Image_2025-12-22_at_15.52.01_0c22999e_1766433068327.jpg',
       },
+      {
+        supabaseUserId: 'simamkele-mabaso',
+        fullName: 'Simamkele Mabaso',
+        email: 'simamkelemabaso01@gmail.com',
+        bio: 'I am Simamkele Mabaso, a professional tutor of Mathematics, Physical Science, Geography and Life Sciences with 2 years of experience and engaging with Students, bringing the best out of them and making sure I leave no stone unturned when delivering lessons to all learners.',
+        subjects: ['Maths', 'Physical Sciences', 'Geography', 'Life Sciences'],
+        hourlyRate: 200,
+        googleMeetUrl: 'https://meet.google.com/simamkele-mabaso',
+      },
     ];
     
     for (const tutor of featuredTutors) {

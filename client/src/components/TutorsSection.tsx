@@ -16,6 +16,7 @@ import luthandoImage from '@assets/WhatsApp_Image_2025-12-22_at_15.52.01_0c22999
 import asemahleImage from '@assets/WhatsApp_Image_2026-01-04_at_11.09.55_1767625249410.jpeg';
 import milisaImage from '@assets/WhatsApp_Image_2026-01-01_at_19.45.33_bdba9873_1767653194048.jpg';
 import mhlangovuyoImage from '@assets/WhatsApp_Image_2026-01-05_at_17.30.22_1767653571338.jpeg';
+import simamkeleImage from '@assets/WhatsApp_Image_2026-01-09_at_11.23.34_1767977296806.jpeg';
 
 interface Tutor {
   id: string;
@@ -282,6 +283,37 @@ const tutors: Tutor[] = [
         icon: Heart,
         title: 'Passionate Mentor',
         description: 'Dedicated to helping others understand and apply development concepts effectively.',
+      },
+    ],
+  },
+  {
+    id: 'simamkele-mabaso',
+    name: 'Simamkele Mabaso',
+    title: 'Maths & Science Tutor',
+    image: simamkeleImage,
+    subjects: ['Maths', 'Physical Sciences', 'Geography', 'Life Sciences'],
+    experience: '2+ Years Experience',
+    education: 'Professional Tutor',
+    bio: 'I am Simamkele Mabaso, a professional tutor of Mathematics, Physical Science, Geography and Life Sciences with 2 years of experience and engaging with Students, bringing the best out of them and making sure I leave no stone unturned when delivering lessons to all learners. I\'m passionate about Tutoring, I have enthusiasm and more patience with learners to make sure they grasp every concept in my lessons.',
+    quote: 'Bringing out the best in every student, one lesson at a time.',
+    hourlyRate: 200,
+    physicsRate: 250,
+    zoomUrl: 'https://zoom.us/j/simamkele-mabaso',
+    highlights: [
+      {
+        icon: Heart,
+        title: 'Passionate Educator',
+        description: 'Deeply passionate about tutoring with enthusiasm and patience for every learner.',
+      },
+      {
+        icon: Target,
+        title: 'Thorough Teaching',
+        description: 'Leaves no stone unturned when delivering lessons, ensuring complete understanding.',
+      },
+      {
+        icon: Star,
+        title: 'Student Success Focus',
+        description: 'Dedicated to bringing out the best in every student and helping them grasp every concept.',
       },
     ],
   },

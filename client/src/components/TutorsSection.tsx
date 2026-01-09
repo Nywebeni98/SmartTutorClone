@@ -201,7 +201,7 @@ const tutors: Tutor[] = [
     subjects: ['Maths', 'Physical Sciences', 'Life Sciences'],
     experience: '6+ Years Experience',
     education: 'BSc Biotechnology Student - UWC',
-    bio: 'Hi, I\'m Asemahle, an undergraduate Biotechnology student at the University of the Western Cape (UWC). I have 6 years of tutoring experience, working both independently and with established tutoring companies such as Preeva. Birthed by a teacher, tutoring came naturally to me, and I am deeply passionate about helping students understand and excel. I specialise in Maths and Science, using clear explanations and learner-focused methods to build confidence and improve results.',
+    bio: 'Hi, I\'m Asemahle, an undergraduate Biotechnology student at the University of the Western Cape (UWC). I have 6 years of tutoring experience, working both independently and with established tutoring companies such as Preeva. My passion for education drives me to help students grasp concepts and achieve their best. I specialise in Maths and Science, using clear explanations and learner-focused methods to build confidence and improve results.',
     quote: 'Let me help upgrade your Maths and Science performance.',
     hourlyRate: 200,
     physicsRate: 250,

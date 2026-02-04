@@ -1,0 +1,8 @@
+[build]
+  command = "vite build --config vite.config.netlify.ts"
+  publish = "dist"
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

@@ -70,7 +70,7 @@ const PACKAGES = [
 
 const SOCIAL_LINKS = [
   { name: 'Facebook', icon: SiFacebook, url: 'https://www.facebook.com/besmartonline', color: 'text-blue-600 dark:text-blue-400' },
-  { name: 'TikTok', icon: SiTiktok, url: 'https://www.tiktok.com/@besmartonline5?is_from_webapp=1&sender_device=pc', color: 'text-foreground' },
+  { name: 'TikTok', icon: SiTiktok, url: 'https://www.tiktok.com/@besmartonline5?_r=1&_t=ZS-94MELY0cHnY', color: 'text-foreground' },
 ];
 
 function useCountdown(targetDate: Date) {

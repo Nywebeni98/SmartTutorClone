@@ -305,6 +305,55 @@ export type InsertActionLog = {
   metadata?: string | null;
 };
 
+// Learner registration table - captures student leads
+export const learnerRegistrations = pgTable("learner_registrations", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  name: text("name").notNull(),
+  surname: text("surname").notNull(),
+  streetAddress: text("street_address"),
+  email: text("email").notNull(),
+  phone: text("phone").notNull(),
+  parentDetails: text("parent_details"),
+  province: text("province").notNull(),
+  municipality: text("municipality"),
+  township: text("township"),
+  schoolName: text("school_name"),
+  grade: text("grade"),
+  streamOfStudy: text("stream_of_study"),
+  subjects: text("subjects").array(),
+  dateOfBirth: text("date_of_birth"),
+  age: integer("age"),
+  gender: text("gender"),
+  demographics: text("demographics"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const insertLearnerRegistrationSchema = createInsertSchema(learnerRegistrations).omit({
+  id: true,
+  createdAt: true,
+}).extend({
+  name: z.string().min(2, "Name must be at least 2 characters"),
+  surname: z.string().min(2, "Surname must be at least 2 characters"),
+  email: z.string().email("Invalid email address"),
+  phone: z.string().min(10, "Phone number must be at least 10 digits"),
+  province: z.string().min(1, "Please select a province"),
+  streetAddress: z.string().optional().nullable(),
+  parentDetails: z.string().optional().nullable(),
+  municipality: z.string().optional().nullable(),
+  township: z.string().optional().nullable(),
+  schoolName: z.string().optional().nullable(),
+  grade: z.string().optional().nullable(),
+  streamOfStudy: z.string().optional().nullable(),
+  subjects: z.array(z.string()).optional().nullable(),
+  dateOfBirth: z.string().optional().nullable(),
+  age: z.number().optional().nullable(),
+  gender: z.string().optional().nullable(),
+  demographics: z.string().optional().nullable(),
+});
+
+export type LearnerRegistration = typeof learnerRegistrations.$inferSelect;
+export type InsertLearnerRegistration = z.infer<typeof insertLearnerRegistrationSchema>;
+
 // Chat message schemas and types
 export const insertChatMessageSchema = createInsertSchema(chatMessages).omit({
   id: true,

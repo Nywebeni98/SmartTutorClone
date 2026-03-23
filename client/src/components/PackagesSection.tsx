@@ -40,7 +40,7 @@ const PACKAGES = [
   {
     id: 'standard',
     name: 'Standard Package',
-    price: 1200,
+    price: 1000,
     period: 'month',
     subjectsAllowed: 2,
     sessionsPerWeek: 2,
@@ -55,7 +55,7 @@ const PACKAGES = [
     id: 'premium',
     name: 'Premium Package',
     originalPrice: 3200,
-    price: 1500,
+    price: 1250,
     period: 'month',
     subjectsAllowed: 3,
     sessionsPerWeek: 3,

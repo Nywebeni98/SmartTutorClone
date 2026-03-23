@@ -1,0 +1,69 @@
+province,municipality,township
+Western Cape,City of Cape Town,Khayelitsha
+Western Cape,City of Cape Town,Gugulethu
+Western Cape,City of Cape Town,Langa
+Western Cape,City of Cape Town,Nyanga
+Western Cape,City of Cape Town,Philippi
+Western Cape,City of Cape Town,Mitchells Plain
+Western Cape,City of Cape Town,Bishop Lavis
+Western Cape,City of Cape Town,Elsies River
+Western Cape,City of Cape Town,Hanover Park
+Western Cape,City of Cape Town,Manenberg
+Western Cape,City of Cape Town,Bonteheuwel
+Western Cape,City of Cape Town,Atlantis
+Western Cape,City of Cape Town,Delft
+
+Gauteng,City of Johannesburg,Soweto
+Gauteng,City of Johannesburg,Alexandra
+Gauteng,City of Johannesburg,Orange Farm
+Gauteng,City of Johannesburg,Diepsloot
+Gauteng,City of Johannesburg,Ennerdale
+
+Gauteng,City of Tshwane,Mamelodi
+Gauteng,City of Tshwane,Soshanguve
+Gauteng,City of Tshwane,Atteridgeville
+Gauteng,City of Tshwane,Hammanskraal
+Gauteng,City of Tshwane,Ga-Rankuwa
+
+Gauteng,City of Ekurhuleni,Tembisa
+Gauteng,City of Ekurhuleni,Kathorus
+Gauteng,City of Ekurhuleni,Katlehong
+Gauteng,City of Ekurhuleni,Thokoza
+Gauteng,City of Ekurhuleni,Daveyton
+
+KwaZulu-Natal,eThekwini,Umlazi
+KwaZulu-Natal,eThekwini,KwaMashu
+KwaZulu-Natal,eThekwini,Inanda
+KwaZulu-Natal,eThekwini,Chatsworth
+KwaZulu-Natal,eThekwini,Lamontville
+KwaZulu-Natal,eThekwini,KwaDabeka
+
+Eastern Cape,Buffalo City,Mdantsane
+Eastern Cape,Buffalo City,Zwelitsha
+Eastern Cape,Buffalo City,Duncan Village
+
+Eastern Cape,Nelson Mandela Bay,Kwazakhele
+Eastern Cape,Nelson Mandela Bay,New Brighton
+Eastern Cape,Nelson Mandela Bay,Motherwell
+Eastern Cape,Nelson Mandela Bay,KwaNobuhle
+
+Limpopo,Polokwane,Seshego
+Limpopo,Polokwane,Mankweng
+Limpopo,Polokwane,Ga-Maja
+
+Limpopo,Thulamela,Thohoyandou
+Limpopo,Thulamela,Shayandima
+
+Mpumalanga,Mbombela,Kanyamazane
+Mpumalanga,Mbombela,KaNyamazane
+Mpumalanga,Mbombela,Matsulu
+
+Mpumalanga,Emalahleni,KwaGuqa
+
+North West,Rustenburg,Phokeng
+North West,Rustenburg,Boitekong
+
+Free State,Mangaung,Botshabelo
+Free State,Mangaung,Thaba Nchu
+
+Northern Cape,Sol Plaatje,Galeshewe

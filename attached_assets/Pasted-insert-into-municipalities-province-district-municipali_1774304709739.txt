@@ -1,0 +1,92 @@
+insert into municipalities (province, district, municipality, type) values
+
+-- ================= WESTERN CAPE =================
+('Western Cape', null, 'City of Cape Town', 'Metro'),
+
+('Western Cape','West Coast','Matzikama','Local'),
+('Western Cape','West Coast','Cederberg','Local'),
+('Western Cape','West Coast','Bergrivier','Local'),
+('Western Cape','West Coast','Saldanha Bay','Local'),
+('Western Cape','West Coast','Swartland','Local'),
+
+('Western Cape','Cape Winelands','Witzenberg','Local'),
+('Western Cape','Cape Winelands','Drakenstein','Local'),
+('Western Cape','Cape Winelands','Stellenbosch','Local'),
+('Western Cape','Cape Winelands','Breede Valley','Local'),
+('Western Cape','Cape Winelands','Langeberg','Local'),
+
+('Western Cape','Overberg','Theewaterskloof','Local'),
+('Western Cape','Overberg','Overstrand','Local'),
+('Western Cape','Overberg','Cape Agulhas','Local'),
+('Western Cape','Overberg','Swellendam','Local'),
+
+('Western Cape','Garden Route','Kannaland','Local'),
+('Western Cape','Garden Route','Hessequa','Local'),
+('Western Cape','Garden Route','Mossel Bay','Local'),
+('Western Cape','Garden Route','George','Local'),
+('Western Cape','Garden Route','Oudtshoorn','Local'),
+('Western Cape','Garden Route','Bitou','Local'),
+('Western Cape','Garden Route','Knysna','Local'),
+
+('Western Cape','Central Karoo','Laingsburg','Local'),
+('Western Cape','Central Karoo','Prince Albert','Local'),
+('Western Cape','Central Karoo','Beaufort West','Local'),
+
+-- ================= GAUTENG =================
+('Gauteng', null, 'City of Johannesburg', 'Metro'),
+('Gauteng', null, 'City of Tshwane', 'Metro'),
+('Gauteng', null, 'City of Ekurhuleni', 'Metro'),
+
+('Gauteng','Sedibeng','Emfuleni','Local'),
+('Gauteng','Sedibeng','Midvaal','Local'),
+('Gauteng','Sedibeng','Lesedi','Local'),
+
+('Gauteng','West Rand','Mogale City','Local'),
+('Gauteng','West Rand','Rand West City','Local'),
+
+-- ================= KWAZULU-NATAL =================
+('KwaZulu-Natal', null, 'eThekwini', 'Metro'),
+
+('KwaZulu-Natal','uMgungundlovu','Msunduzi','Local'),
+('KwaZulu-Natal','uMgungundlovu','uMngeni','Local'),
+
+('KwaZulu-Natal','King Cetshwayo','Richards Bay','Local'),
+('KwaZulu-Natal','King Cetshwayo','uMhlathuze','Local'),
+
+('KwaZulu-Natal','Zululand','Ulundi','Local'),
+('KwaZulu-Natal','Zululand','AbaQulusi','Local'),
+
+-- ================= EASTERN CAPE =================
+('Eastern Cape', null, 'Buffalo City', 'Metro'),
+('Eastern Cape', null, 'Nelson Mandela Bay', 'Metro'),
+
+('Eastern Cape','OR Tambo','King Sabata Dalindyebo','Local'),
+('Eastern Cape','OR Tambo','Nyandeni','Local'),
+
+-- ================= LIMPOPO =================
+('Limpopo','Capricorn','Polokwane','Local'),
+('Limpopo','Capricorn','Blouberg','Local'),
+
+('Limpopo','Vhembe','Thulamela','Local'),
+('Limpopo','Vhembe','Makhado','Local'),
+
+-- ================= MPUMALANGA =================
+('Mpumalanga','Ehlanzeni','Mbombela','Local'),
+('Mpumalanga','Ehlanzeni','Nkomazi','Local'),
+
+('Mpumalanga','Nkangala','Emalahleni','Local'),
+('Mpumalanga','Nkangala','Steve Tshwete','Local'),
+
+-- ================= NORTH WEST =================
+('North West','Bojanala','Rustenburg','Local'),
+('North West','Bojanala','Madibeng','Local'),
+
+-- ================= FREE STATE =================
+('Free State', null, 'Mangaung', 'Metro'),
+
+('Free State','Lejweleputswa','Matjhabeng','Local'),
+('Free State','Thabo Mofutsanyana','Maluti-a-Phofung','Local'),
+
+-- ================= NORTHERN CAPE =================
+('Northern Cape','Frances Baard','Sol Plaatje','Local'),
+('Northern Cape','Frances Baard','Dikgatlong','Local');

@@ -4,8 +4,16 @@ import { dbStorage, initializeDatabase } from "./dbStorage";
 import { insertContactSchema, insertAppointmentSchema, insertAvailabilitySchema, insertTutorProfileSchema, insertBookingPaymentSchema, passwordSchema, insertChatMessageSchema, insertLearnerRegistrationSchema } from "@shared/schema";
 import { fromZodError } from "zod-validation-error";
 import { Resend } from 'resend';
+import { createClient } from '@supabase/supabase-js';
 import { setupWebSocketServer } from './websocket';
 import crypto from 'crypto';
+
+// Supabase client for saving registrations (service role key bypasses RLS)
+const supabaseUrl = process.env.VITE_SUPABASE_URL;
+const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.VITE_SUPABASE_ANON_KEY;
+const supabaseAdmin = (supabaseUrl && supabaseKey)
+  ? createClient(supabaseUrl, supabaseKey)
+  : null;
 
 function generateZoomVideoSDKJWT(
   sessionName: string,
@@ -446,6 +454,42 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const validatedData = insertLearnerRegistrationSchema.parse(req.body);
       const registration = await storage.createLearnerRegistration(validatedData);
 
+      // Save to Supabase so admin can view registrations in the Supabase dashboard
+      try {
+        if (supabaseAdmin) {
+          const r = validatedData;
+          const { error: sbError } = await supabaseAdmin.from('learner_registrations').insert({
+            name: r.name,
+            surname: r.surname,
+            email: r.email,
+            phone: r.phone,
+            date_of_birth: r.dateOfBirth ?? null,
+            age: r.age ?? null,
+            gender: r.gender ?? null,
+            demographics: r.demographics ?? null,
+            street_address: r.streetAddress ?? null,
+            province: r.province,
+            municipality: r.municipality ?? null,
+            township: r.township ?? null,
+            school_name: r.schoolName ?? null,
+            grade: r.grade ?? null,
+            stream_of_study: r.streamOfStudy ?? null,
+            subjects: r.subjects ?? null,
+            parent_details: r.parentDetails ?? null,
+            parent_email: r.parentEmail ?? null,
+          });
+          if (sbError) {
+            console.error('Supabase insert error:', sbError.message);
+          } else {
+            console.log('Learner registration saved to Supabase');
+          }
+        } else {
+          console.warn('Supabase not configured — registration saved to local DB only');
+        }
+      } catch (sbErr) {
+        console.error('Failed to save registration to Supabase:', sbErr);
+      }
+
       // Send email notification to admin with full registration details
       try {
         if (process.env.RESEND_API_KEY) {
@@ -493,11 +537,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
                   <h3 style="margin:20px 0 12px;color:#0a4191;font-size:15px;">Parent / Guardian</h3>
                   <table style="width:100%;border-collapse:collapse;background:#f9fafb;border-radius:6px;">
-                    ${row('Parent/Guardian', r.parentDetails ?? undefined)}
+                    ${row('Name & Phone', r.parentDetails ?? undefined)}
+                    ${row('Parent Email', r.parentEmail ?? undefined)}
                   </table>
 
                   <p style="margin-top:24px;color:#9ca3af;font-size:12px;">
-                    Registration ID: ${registration.id} — View all registrations in the Admin Dashboard.
+                    Registration ID: ${registration.id} — View registrations in your Admin Dashboard and Supabase.
                   </p>
                 </div>
               </div>

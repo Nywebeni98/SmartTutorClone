@@ -445,6 +445,70 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const validatedData = insertLearnerRegistrationSchema.parse(req.body);
       const registration = await storage.createLearnerRegistration(validatedData);
+
+      // Send email notification to admin with full registration details
+      try {
+        if (process.env.RESEND_API_KEY) {
+          const r = validatedData;
+          const row = (label: string, value: string | null | undefined) =>
+            value ? `<tr><td style="padding:6px 12px;color:#666;width:160px;font-size:13px;">${label}</td><td style="padding:6px 12px;font-size:13px;font-weight:600;">${value}</td></tr>` : '';
+
+          await resend.emails.send({
+            from: 'Be Smart Tutorials <onboarding@resend.dev>',
+            to: [NOTIFICATION_EMAIL],
+            subject: `New Learner Registration — ${r.name} ${r.surname}`,
+            html: `
+              <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;border:1px solid #e5e7eb;border-radius:8px;overflow:hidden;">
+                <div style="background:#0a4191;padding:20px 24px;">
+                  <h2 style="color:white;margin:0;font-size:20px;">New Learner Registration</h2>
+                  <p style="color:rgba(255,255,255,0.8);margin:4px 0 0;font-size:13px;">Be Smart Online Tutorials</p>
+                </div>
+                <div style="padding:24px;">
+                  <h3 style="margin:0 0 12px;color:#0a4191;font-size:15px;">Personal Details</h3>
+                  <table style="width:100%;border-collapse:collapse;background:#f9fafb;border-radius:6px;">
+                    ${row('First Name', r.name)}
+                    ${row('Surname', r.surname)}
+                    ${row('Email', r.email)}
+                    ${row('Phone', r.phone)}
+                    ${row('Date of Birth', r.dateOfBirth ?? undefined)}
+                    ${row('Gender', r.gender ?? undefined)}
+                    ${row('Demographics', r.demographics ?? undefined)}
+                  </table>
+
+                  <h3 style="margin:20px 0 12px;color:#0a4191;font-size:15px;">Location</h3>
+                  <table style="width:100%;border-collapse:collapse;background:#f9fafb;border-radius:6px;">
+                    ${row('Province', r.province ?? undefined)}
+                    ${row('Municipality / Metro', r.municipality ?? undefined)}
+                    ${row('Township / Area', r.township ?? undefined)}
+                    ${row('Street Address', r.streetAddress ?? undefined)}
+                  </table>
+
+                  <h3 style="margin:20px 0 12px;color:#0a4191;font-size:15px;">Academic Details</h3>
+                  <table style="width:100%;border-collapse:collapse;background:#f9fafb;border-radius:6px;">
+                    ${row('Grade / Level', r.grade ?? undefined)}
+                    ${row('Stream of Study', r.streamOfStudy ?? undefined)}
+                    ${row('Subjects', Array.isArray(r.subjects) ? r.subjects.join(', ') : (r.subjects ?? undefined))}
+                    ${row('School', r.schoolName ?? undefined)}
+                  </table>
+
+                  <h3 style="margin:20px 0 12px;color:#0a4191;font-size:15px;">Parent / Guardian</h3>
+                  <table style="width:100%;border-collapse:collapse;background:#f9fafb;border-radius:6px;">
+                    ${row('Parent/Guardian', r.parentDetails ?? undefined)}
+                  </table>
+
+                  <p style="margin-top:24px;color:#9ca3af;font-size:12px;">
+                    Registration ID: ${registration.id} — View all registrations in the Admin Dashboard.
+                  </p>
+                </div>
+              </div>
+            `,
+          });
+          console.log('Learner registration email sent to admin');
+        }
+      } catch (emailErr) {
+        console.error('Failed to send registration notification email:', emailErr);
+      }
+
       res.status(201).json({
         success: true,
         message: "Registration submitted successfully",

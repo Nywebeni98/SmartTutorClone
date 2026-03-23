@@ -4,7 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useMutation } from "@tanstack/react-query";
 import {
-  Dialog, DialogContent, DialogHeader, DialogTitle,
+  Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle,
 } from "@/components/ui/dialog";
 import {
   Form, FormControl, FormField, FormItem, FormLabel, FormMessage,
@@ -19,7 +19,7 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { GRADES, STREAMS, SUBJECTS_LIST, DEMOGRAPHICS, GENDERS } from "@/data/sa-locations";
-import { CheckCircle, Check, X, Search, Loader2 } from "lucide-react";
+import { CheckCircle, Check, X, MapPin, Loader2 } from "lucide-react";
 import logoUrl from "@assets/Blue Minimal Idea Free Education Logo_1764023278343.png";
 
 const SA_PROVINCES = [
@@ -27,7 +27,10 @@ const SA_PROVINCES = [
   "Limpopo", "Mpumalanga", "Northern Cape", "North West", "Western Cape",
 ];
 
-interface NominatimPlace {
+// SA bounding box for Nominatim viewbox parameter (lon_min,lat_min,lon_max,lat_max)
+const SA_VIEWBOX = "16.4,-34.9,33.0,-22.0";
+
+interface NominatimResult {
   place_id: number;
   display_name: string;
   address: {
@@ -39,68 +42,100 @@ interface NominatimPlace {
     county?: string;
     state_district?: string;
     state?: string;
+    municipality?: string;
   };
   type: string;
   class: string;
 }
 
-function usePlaceSearch(query: string, province: string, extraFilter?: string) {
-  const [results, setResults] = useState<string[]>([]);
-  const [loading, setLoading] = useState(false);
-  const timerRef = useRef<ReturnType<typeof setTimeout>>();
+function extractMunicipalityName(place: NominatimResult, province: string): string | null {
+  const addr = place.address;
+  // Prefer county (district municipality) or city (metro)
+  const candidates = [
+    addr.county,
+    addr.city,
+    addr.state_district,
+    addr.municipality,
+    addr.town,
+  ];
+  for (const c of candidates) {
+    if (c && c !== province && c !== "South Africa") return c;
+  }
+  // Fallback: first part of display_name
+  const first = place.display_name.split(",")[0].trim();
+  if (first && first !== province) return first;
+  return null;
+}
 
-  useEffect(() => {
-    if (query.length < 2) {
-      setResults([]);
-      return;
+function extractTownshipName(place: NominatimResult, province: string, municipality: string): string | null {
+  const addr = place.address;
+  // Prefer suburb/neighbourhood/village/town for townships
+  const candidates = [
+    addr.suburb,
+    addr.neighbourhood,
+    addr.village,
+    addr.town,
+    addr.city,
+  ];
+  for (const c of candidates) {
+    if (c && c !== province && c !== municipality && c !== "South Africa") return c;
+  }
+  const first = place.display_name.split(",")[0].trim();
+  if (first && first !== province && first !== municipality) return first;
+  return null;
+}
+
+async function searchMunicipalities(query: string, province: string): Promise<string[]> {
+  const params = new URLSearchParams({
+    q: `${query} ${province} South Africa`,
+    countrycodes: "za",
+    format: "json",
+    addressdetails: "1",
+    limit: "20",
+    viewbox: SA_VIEWBOX,
+    bounded: "1",
+  });
+  const res = await fetch(`https://nominatim.openstreetmap.org/search?${params}`, {
+    headers: { "Accept-Language": "en", "User-Agent": "BeSmartTutorials/1.0" },
+  });
+  const data: NominatimResult[] = await res.json();
+  const seen = new Set<string>();
+  const names: string[] = [];
+  for (const place of data) {
+    const name = extractMunicipalityName(place, province);
+    if (name && !seen.has(name) && name.toLowerCase().includes(query.toLowerCase())) {
+      seen.add(name);
+      names.push(name);
     }
+  }
+  return names.slice(0, 10);
+}
 
-    clearTimeout(timerRef.current);
-    timerRef.current = setTimeout(async () => {
-      setLoading(true);
-      try {
-        const searchQ = [query, province, "South Africa"].filter(Boolean).join(" ");
-        const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(searchQ)}&countrycodes=za&format=json&addressdetails=1&limit=15`;
-        const res = await fetch(url, {
-          headers: { "Accept-Language": "en", "User-Agent": "BeSmartTutorials/1.0" },
-        });
-        const data: NominatimPlace[] = await res.json();
-
-        const seen = new Set<string>();
-        const names: string[] = [];
-
-        for (const place of data) {
-          const addr = place.address;
-          const candidates = [
-            addr.city,
-            addr.town,
-            addr.village,
-            addr.suburb,
-            addr.neighbourhood,
-            addr.county,
-            addr.state_district,
-          ].filter((v): v is string => !!v && v !== province);
-
-          for (const name of candidates) {
-            if (!seen.has(name) && name.toLowerCase().includes(query.toLowerCase())) {
-              seen.add(name);
-              names.push(name);
-            }
-          }
-        }
-
-        setResults(names.slice(0, 10));
-      } catch {
-        setResults([]);
-      } finally {
-        setLoading(false);
-      }
-    }, 350);
-
-    return () => clearTimeout(timerRef.current);
-  }, [query, province, extraFilter]);
-
-  return { results, loading };
+async function searchTownships(query: string, province: string, municipality: string): Promise<string[]> {
+  const contextQuery = [query, municipality, province, "South Africa"].filter(Boolean).join(" ");
+  const params = new URLSearchParams({
+    q: contextQuery,
+    countrycodes: "za",
+    format: "json",
+    addressdetails: "1",
+    limit: "20",
+    viewbox: SA_VIEWBOX,
+    bounded: "1",
+  });
+  const res = await fetch(`https://nominatim.openstreetmap.org/search?${params}`, {
+    headers: { "Accept-Language": "en", "User-Agent": "BeSmartTutorials/1.0" },
+  });
+  const data: NominatimResult[] = await res.json();
+  const seen = new Set<string>();
+  const names: string[] = [];
+  for (const place of data) {
+    const name = extractTownshipName(place, province, municipality);
+    if (name && !seen.has(name) && name.toLowerCase().includes(query.toLowerCase())) {
+      seen.add(name);
+      names.push(name);
+    }
+  }
+  return names.slice(0, 10);
 }
 
 interface LocationSearchProps {
@@ -108,21 +143,42 @@ interface LocationSearchProps {
   placeholder: string;
   value: string;
   onChange: (v: string) => void;
-  province: string;
-  context?: string;
+  fetchFn: (query: string) => Promise<string[]>;
   testId: string;
   disabled?: boolean;
+  disabledReason?: string;
 }
 
-function LocationSearch({ label, placeholder, value, onChange, province, context, testId, disabled }: LocationSearchProps) {
+function LocationSearch({
+  label, placeholder, value, onChange, fetchFn, testId, disabled, disabledReason,
+}: LocationSearchProps) {
   const [inputVal, setInputVal] = useState(value);
+  const [suggestions, setSuggestions] = useState<string[]>([]);
+  const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
-  const { results, loading } = usePlaceSearch(inputVal, province, context);
+  const timerRef = useRef<ReturnType<typeof setTimeout>>();
+
+  useEffect(() => { setInputVal(value); }, [value]);
 
   useEffect(() => {
-    setInputVal(value);
-  }, [value]);
+    if (inputVal.length < 2) { setSuggestions([]); setOpen(false); return; }
+    clearTimeout(timerRef.current);
+    timerRef.current = setTimeout(async () => {
+      if (disabled) return;
+      setLoading(true);
+      try {
+        const results = await fetchFn(inputVal);
+        setSuggestions(results);
+        setOpen(results.length > 0);
+      } catch {
+        setSuggestions([]);
+      } finally {
+        setLoading(false);
+      }
+    }, 400);
+    return () => clearTimeout(timerRef.current);
+  }, [inputVal, fetchFn, disabled]);
 
   useEffect(() => {
     const handler = (e: MouseEvent) => {
@@ -138,40 +194,51 @@ function LocationSearch({ label, placeholder, value, onChange, province, context
     <div className="space-y-1" ref={containerRef}>
       <Label>{label}</Label>
       <div className="relative">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
-        {loading && <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 animate-spin text-muted-foreground pointer-events-none" />}
+        <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
+        {loading && (
+          <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 animate-spin text-muted-foreground pointer-events-none" />
+        )}
         <Input
           value={inputVal}
-          placeholder={disabled ? "Select province first" : placeholder}
+          placeholder={disabled ? (disabledReason ?? "Select province first") : placeholder}
           disabled={disabled}
           data-testid={testId}
           className="pl-9"
+          autoComplete="off"
           onChange={(e) => {
-            setInputVal(e.target.value);
-            onChange(e.target.value);
-            setOpen(true);
+            const v = e.target.value;
+            setInputVal(v);
+            onChange(v);
           }}
-          onFocus={() => inputVal.length >= 2 && setOpen(true)}
+          onFocus={() => {
+            if (suggestions.length > 0) setOpen(true);
+          }}
         />
-        {open && results.length > 0 && (
-          <div className="absolute z-50 top-full left-0 right-0 mt-1 bg-popover border rounded-md shadow-md max-h-48 overflow-y-auto">
-            {results.map((name) => (
+        {open && suggestions.length > 0 && (
+          <div className="absolute z-50 top-full left-0 right-0 mt-1 bg-popover border rounded-md shadow-lg max-h-52 overflow-y-auto">
+            {suggestions.map((name) => (
               <button
                 key={name}
                 type="button"
-                className="w-full text-left px-3 py-2 text-sm hover:bg-muted transition-colors"
-                onClick={() => {
+                className="w-full text-left px-3 py-2 text-sm hover:bg-muted transition-colors border-b last:border-b-0"
+                onMouseDown={(e) => {
+                  e.preventDefault();
                   setInputVal(name);
                   onChange(name);
                   setOpen(false);
+                  setSuggestions([]);
                 }}
               >
+                <MapPin className="inline w-3 h-3 mr-1.5 text-muted-foreground" />
                 {name}
               </button>
             ))}
           </div>
         )}
       </div>
+      {!disabled && inputVal.length > 0 && inputVal.length < 2 && (
+        <p className="text-xs text-muted-foreground">Type at least 2 characters to search</p>
+      )}
     </div>
   );
 }
@@ -201,7 +268,6 @@ export function RegisterModal({ open, onClose }: Props) {
   const { toast } = useToast();
   const [submitted, setSubmitted] = useState(false);
   const [selectedSubjects, setSelectedSubjects] = useState<string[]>([]);
-
   const [province, setProvince] = useState("");
   const [municipality, setMunicipality] = useState("");
   const [township, setTownship] = useState("");
@@ -229,6 +295,14 @@ export function RegisterModal({ open, onClose }: Props) {
   function handleClose() {
     onClose();
     setTimeout(resetAll, 300);
+  }
+
+  // Memoised fetch functions that capture the current province/municipality
+  function municipalityFetcher(query: string) {
+    return searchMunicipalities(query, province);
+  }
+  function townshipFetcher(query: string) {
+    return searchTownships(query, province, municipality);
   }
 
   const mutation = useMutation({
@@ -267,7 +341,6 @@ export function RegisterModal({ open, onClose }: Props) {
     },
     onSuccess: () => {
       setSubmitted(true);
-      localStorage.setItem("learner_registered", "true");
     },
     onError: (error: any) => {
       if (error.message !== "Province required") {
@@ -287,33 +360,35 @@ export function RegisterModal({ open, onClose }: Props) {
   }
 
   function onSubmit(data: FormData) {
-    if (!province) {
-      setProvinceError("Please select a province");
-      return;
-    }
+    if (!province) { setProvinceError("Please select a province"); return; }
     setProvinceError("");
     mutation.mutate(data);
   }
 
   return (
     <Dialog open={open} onOpenChange={(v) => { if (!v) handleClose(); }}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto p-0">
-        {/* Header */}
+      <DialogContent className="max-w-2xl max-h-[92vh] overflow-y-auto p-0">
+        {/* Sticky header */}
         <div
           className="sticky top-0 z-10 flex items-center justify-between px-6 py-4"
           style={{ backgroundColor: "hsl(var(--brand-blue))" }}
         >
           <div className="flex items-center gap-3">
             <img src={logoUrl} alt="Be Smart" className="h-10 w-10 object-contain" />
-            <DialogTitle className="text-white text-lg font-bold m-0 p-0" style={{ fontFamily: "'Poppins', sans-serif" }}>
-              Learner Registration
-            </DialogTitle>
+            <div>
+              <DialogTitle className="text-white text-lg font-bold m-0 p-0" style={{ fontFamily: "'Poppins', sans-serif" }}>
+                Learner Registration
+              </DialogTitle>
+              <DialogDescription className="sr-only">
+                Register as a learner at Be Smart Online Tutorials
+              </DialogDescription>
+            </div>
           </div>
           <button
             onClick={handleClose}
             className="rounded-full p-1 text-white/80 hover:text-white hover:bg-white/20 transition-colors"
             data-testid="button-close-register-modal"
-            aria-label="Close registration form"
+            aria-label="Close"
           >
             <X className="w-5 h-5" />
           </button>
@@ -328,7 +403,7 @@ export function RegisterModal({ open, onClose }: Props) {
                   You're Registered!
                 </h2>
                 <p className="text-muted-foreground">
-                  Welcome to Be Smart Online Tutorials. We'll be in touch shortly to confirm your sessions.
+                  Welcome to Be Smart Online Tutorials. We'll be in touch shortly to get your sessions started.
                 </p>
               </div>
               <Button
@@ -365,14 +440,14 @@ export function RegisterModal({ open, onClose }: Props) {
                     )} />
                     <FormField control={form.control} name="email" render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Email *</FormLabel>
+                        <FormLabel>Email Address *</FormLabel>
                         <FormControl><Input type="email" placeholder="your@email.com" {...field} data-testid="input-reg-email" /></FormControl>
                         <FormMessage />
                       </FormItem>
                     )} />
                     <FormField control={form.control} name="phone" render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Phone *</FormLabel>
+                        <FormLabel>Phone Number *</FormLabel>
                         <FormControl><Input placeholder="e.g. 0712345678" {...field} data-testid="input-reg-phone" /></FormControl>
                         <FormMessage />
                       </FormItem>
@@ -402,7 +477,7 @@ export function RegisterModal({ open, onClose }: Props) {
                     )} />
                     <FormField control={form.control} name="demographics" render={({ field }) => (
                       <FormItem className="sm:col-span-2">
-                        <FormLabel>Race/Demographics</FormLabel>
+                        <FormLabel>Race / Demographics (optional)</FormLabel>
                         <Select onValueChange={field.onChange} value={field.value || ""}>
                           <FormControl>
                             <SelectTrigger data-testid="select-reg-demographics">
@@ -423,6 +498,7 @@ export function RegisterModal({ open, onClose }: Props) {
                 <div>
                   <h3 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground mb-3">Location</h3>
                   <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                    {/* Province */}
                     <div className="space-y-1">
                       <Label htmlFor="reg-province">Province *</Label>
                       <Select
@@ -444,30 +520,36 @@ export function RegisterModal({ open, onClose }: Props) {
                       {provinceError && <p className="text-sm text-destructive">{provinceError}</p>}
                     </div>
 
+                    {/* Municipality live search */}
                     <LocationSearch
                       label="Municipality / Metro"
                       placeholder="Type to search e.g. City of Cape Town"
                       value={municipality}
-                      onChange={setMunicipality}
-                      province={province}
+                      onChange={(v) => {
+                        setMunicipality(v);
+                        setTownship("");
+                      }}
+                      fetchFn={municipalityFetcher}
                       testId="input-reg-municipality"
                       disabled={!province}
+                      disabledReason="Select a province first"
                     />
 
+                    {/* Township live search */}
                     <LocationSearch
                       label="Township / Area"
-                      placeholder="Type to search e.g. Khayelitsha"
+                      placeholder="Type to search e.g. Khayelitsha, Soweto"
                       value={township}
                       onChange={setTownship}
-                      province={province}
-                      context={municipality}
+                      fetchFn={townshipFetcher}
                       testId="input-reg-township"
                       disabled={!province}
+                      disabledReason="Select a province first"
                     />
 
                     <FormField control={form.control} name="streetAddress" render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Street Address</FormLabel>
+                        <FormLabel>Street Address (optional)</FormLabel>
                         <FormControl><Input placeholder="e.g. 12 Main Street" {...field} data-testid="input-reg-street" /></FormControl>
                         <FormMessage />
                       </FormItem>
@@ -513,7 +595,7 @@ export function RegisterModal({ open, onClose }: Props) {
                     )} />
                   </div>
 
-                  {/* Subject selection */}
+                  {/* Subject checkboxes */}
                   <div className="mt-3">
                     <p className="text-sm font-medium mb-2">Subjects Needing Tutoring</p>
                     {selectedSubjects.length > 0 && (
@@ -530,7 +612,7 @@ export function RegisterModal({ open, onClose }: Props) {
                         ))}
                       </div>
                     )}
-                    <div className="grid grid-cols-2 gap-0.5 sm:grid-cols-3 max-h-40 overflow-y-auto border rounded-md p-1">
+                    <div className="grid grid-cols-2 gap-0.5 sm:grid-cols-3 max-h-44 overflow-y-auto border rounded-md p-1">
                       {SUBJECTS_LIST.map(subject => {
                         const checked = selectedSubjects.includes(subject);
                         return (
@@ -559,36 +641,25 @@ export function RegisterModal({ open, onClose }: Props) {
                     <FormItem>
                       <FormLabel>Parent/Guardian Name & Contact (optional)</FormLabel>
                       <FormControl>
-                        <Input placeholder="e.g. Mrs. Mokoena - 082 123 4567" {...field} data-testid="input-reg-parent" />
+                        <Input placeholder="e.g. Mrs. Mokoena — 082 123 4567" {...field} data-testid="input-reg-parent" />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )} />
                 </div>
 
-                <div className="flex flex-col gap-2 pt-2">
-                  <Button
-                    type="submit"
-                    size="lg"
-                    className="w-full text-white font-semibold"
-                    style={{ backgroundColor: "hsl(var(--brand-blue))" }}
-                    disabled={mutation.isPending}
-                    data-testid="button-reg-submit"
-                  >
-                    {mutation.isPending ? (
-                      <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Submitting...</>
-                    ) : "Complete Registration"}
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    className="w-full text-muted-foreground text-sm"
-                    onClick={handleClose}
-                    data-testid="button-reg-skip"
-                  >
-                    Skip for now
-                  </Button>
-                </div>
+                <Button
+                  type="submit"
+                  size="lg"
+                  className="w-full text-white font-semibold"
+                  style={{ backgroundColor: "hsl(var(--brand-blue))" }}
+                  disabled={mutation.isPending}
+                  data-testid="button-reg-submit"
+                >
+                  {mutation.isPending ? (
+                    <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Submitting...</>
+                  ) : "Complete Registration"}
+                </Button>
               </form>
             </Form>
           )}

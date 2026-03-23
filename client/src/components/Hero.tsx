@@ -61,7 +61,7 @@ export function Hero({ onRegisterClick }: HeroProps) {
               data-testid="button-register-now"
             >
               <UserPlus className="w-5 h-5 mr-2" />
-              Register Now — It's Free
+              Register Now
             </Button>
           </div>
 

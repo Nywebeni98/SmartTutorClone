@@ -1,4 +1,4 @@
-// Main home page combining all sections for Be Smart Online Tutorials
+import { useState } from 'react';
 import { Header } from '@/components/Header';
 import { Hero } from '@/components/Hero';
 import { SubjectsSection } from '@/components/SubjectsSection';
@@ -8,39 +8,28 @@ import { PackagesSection } from '@/components/PackagesSection';
 import { VideoSection } from '@/components/VideoSection';
 import { ContactSection } from '@/components/ContactSection';
 import { Footer } from '@/components/Footer';
+import { RegisterModal } from '@/components/RegisterModal';
 
 export default function Home() {
+  const [registerOpen, setRegisterOpen] = useState(false);
+
   return (
     <div className="min-h-screen bg-background">
-      {/* Header with navigation and sign-in */}
       <Header />
       
-      {/* Main content sections */}
       <main>
-        {/* Hero section with call-to-action */}
-        <Hero />
-        
-        {/* Subjects we teach */}
+        <Hero onRegisterClick={() => setRegisterOpen(true)} />
         <SubjectsSection />
-        
-        {/* About our tutoring service */}
         <AboutSection />
-        
-        {/* Meet our tutors */}
         <TutorsSection />
-        
-        {/* Monthly Packages */}
         <PackagesSection />
-        
-        {/* Video testimonials and benefits */}
         <VideoSection />
-        
-        {/* Contact form and information */}
         <ContactSection />
       </main>
       
-      {/* Footer with links and contact info */}
       <Footer />
+
+      <RegisterModal open={registerOpen} onClose={() => setRegisterOpen(false)} />
     </div>
   );
 }

@@ -1,7 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { GraduationCap, BookOpen, UserPlus } from 'lucide-react';
-import { useLocation } from 'wouter';
 
 const slides = [
   {
@@ -12,9 +11,12 @@ const slides = [
   },
 ];
 
-export function Hero() {
+interface HeroProps {
+  onRegisterClick: () => void;
+}
+
+export function Hero({ onRegisterClick }: HeroProps) {
   const [currentSlide, setCurrentSlide] = useState(0);
-  const [, navigate] = useLocation();
 
   const nextSlide = useCallback(() => {
     setCurrentSlide((prev) => (prev + 1) % slides.length);
@@ -44,12 +46,33 @@ export function Hero() {
       <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/30 to-black/50"></div>
 
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center">
-        <div className="max-w-4xl mx-auto space-y-8">
-          <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-md rounded-full border border-white/20" data-testid="badge-location">
-            <GraduationCap className="w-5 h-5 text-white" />
-            <span className="text-white text-sm font-medium" data-testid="text-location">
-              Serving South Africa
-            </span>
+        <div className="max-w-4xl mx-auto space-y-6">
+
+          {/* Register Now button — above "Serving South Africa" */}
+          <div className="flex justify-center">
+            <Button
+              size="lg"
+              onClick={onRegisterClick}
+              className="font-semibold shadow-lg px-8"
+              style={{
+                backgroundColor: 'hsl(var(--brand-orange))',
+                color: 'white',
+              }}
+              data-testid="button-register-now"
+            >
+              <UserPlus className="w-5 h-5 mr-2" />
+              Register Now — It's Free
+            </Button>
+          </div>
+
+          {/* Serving South Africa badge */}
+          <div className="flex justify-center">
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-md rounded-full border border-white/20" data-testid="badge-location">
+              <GraduationCap className="w-5 h-5 text-white" />
+              <span className="text-white text-sm font-medium" data-testid="text-location">
+                Serving South Africa
+              </span>
+            </div>
           </div>
 
           <h1 
@@ -99,7 +122,7 @@ export function Hero() {
             <Button
               size="lg"
               onClick={() => scrollToSection('#subjects')}
-              className="min-w-[200px] text-base font-semibold shadow-lg hover:shadow-xl transition-all"
+              className="min-w-[200px] text-base font-semibold shadow-lg"
               style={{
                 backgroundColor: 'hsl(var(--brand-yellow))',
                 color: 'hsl(var(--brand-blue))',
@@ -114,25 +137,11 @@ export function Hero() {
               size="lg"
               variant="outline"
               onClick={() => scrollToSection('#contact')}
-              className="min-w-[200px] text-base font-semibold bg-white/10 backdrop-blur-md border-2 border-white text-white hover:bg-white/20 shadow-lg"
+              className="min-w-[200px] text-base font-semibold bg-white/10 backdrop-blur-md border-2 border-white text-white"
               data-testid="button-get-started"
             >
               <GraduationCap className="w-5 h-5 mr-2" />
               Get Started
-            </Button>
-
-            <Button
-              size="lg"
-              onClick={() => navigate('/register')}
-              className="min-w-[200px] text-base font-semibold shadow-lg"
-              style={{
-                backgroundColor: 'hsl(var(--brand-orange))',
-                color: 'white',
-              }}
-              data-testid="button-register-now"
-            >
-              <UserPlus className="w-5 h-5 mr-2" />
-              Register Now
             </Button>
           </div>
         </div>

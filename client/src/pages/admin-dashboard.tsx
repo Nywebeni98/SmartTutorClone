@@ -18,7 +18,7 @@ import {
   Mail, Calendar, Clock, Plus, Trash2, CalendarDays, Bell, Video, Phone,
   PlayCircle, History, Send
 } from 'lucide-react';
-import type { TutorProfile, BookingPayment, Pricing, Availability, ActionLog } from '@shared/schema';
+import type { TutorProfile, BookingPayment, Pricing, Availability, ActionLog, LearnerRegistration } from '@shared/schema';
 
 // Featured tutors are now loaded from the database (tutorProfiles query)
 // This ensures we use the correct database UUIDs for availability
@@ -115,6 +115,21 @@ export default function AdminDashboard() {
         },
       });
       if (!response.ok) throw new Error('Failed to fetch active tutors');
+      return response.json();
+    },
+  });
+
+  const { data: learnerRegistrations = [], isLoading: loadingLearners } = useQuery<LearnerRegistration[]>({
+    queryKey: ['/api/admin/learner-registrations'],
+    enabled: isAdmin,
+    queryFn: async () => {
+      const token = getAdminToken();
+      const response = await fetch('/api/admin/learner-registrations', {
+        headers: {
+          ...(token ? { 'x-admin-token': token } : {}),
+        },
+      });
+      if (!response.ok) throw new Error('Failed to fetch learner registrations');
       return response.json();
     },
   });
@@ -437,6 +452,7 @@ export default function AdminDashboard() {
             </TabsTrigger>
             <TabsTrigger value="bookings" data-testid="tab-bookings">Bookings</TabsTrigger>
             <TabsTrigger value="pricing" data-testid="tab-pricing">Pricing</TabsTrigger>
+            <TabsTrigger value="learners" data-testid="tab-learners">Learners</TabsTrigger>
           </TabsList>
 
           <TabsContent value="notifications" className="space-y-6">
@@ -1197,6 +1213,71 @@ export default function AdminDashboard() {
                           <Badge className="mt-2" variant={plan.isActive ? 'default' : 'secondary'}>
                             {plan.isActive ? 'Active' : 'Inactive'}
                           </Badge>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="learners" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Users className="h-5 w-5" />
+                  Learner Registrations
+                  <Badge className="ml-2">{learnerRegistrations.length}</Badge>
+                </CardTitle>
+                <CardDescription>
+                  All learners who have registered through the website
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                {loadingLearners ? (
+                  <div className="flex items-center justify-center py-8">
+                    <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+                  </div>
+                ) : learnerRegistrations.length === 0 ? (
+                  <div className="text-center py-8 text-muted-foreground">
+                    No learner registrations yet
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {learnerRegistrations.map((reg) => (
+                      <Card key={reg.id} className="bg-muted/30">
+                        <CardContent className="pt-4">
+                          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+                            <div>
+                              <p className="font-semibold text-sm">{reg.name} {reg.surname}</p>
+                              <p className="text-sm text-muted-foreground flex items-center gap-1">
+                                <Mail className="w-3 h-3" /> {reg.email}
+                              </p>
+                              <p className="text-sm text-muted-foreground flex items-center gap-1">
+                                <Phone className="w-3 h-3" /> {reg.phone}
+                              </p>
+                            </div>
+                            <div>
+                              {reg.grade && <p className="text-sm"><span className="font-medium">Grade:</span> {reg.grade}</p>}
+                              {reg.province && <p className="text-sm"><span className="font-medium">Province:</span> {reg.province}</p>}
+                              {reg.township && <p className="text-sm"><span className="font-medium">Area:</span> {reg.township}</p>}
+                              {reg.schoolName && <p className="text-sm"><span className="font-medium">School:</span> {reg.schoolName}</p>}
+                            </div>
+                            {(reg.subjects && reg.subjects.length > 0) && (
+                              <div className="sm:col-span-2">
+                                <p className="text-sm font-medium mb-1">Subjects:</p>
+                                <div className="flex flex-wrap gap-1">
+                                  {reg.subjects.map(s => (
+                                    <Badge key={s} variant="secondary" className="text-xs">{s}</Badge>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+                            <div className="sm:col-span-2 text-xs text-muted-foreground">
+                              Registered: {new Date(reg.createdAt).toLocaleDateString('en-ZA', { day: 'numeric', month: 'long', year: 'numeric' })}
+                            </div>
+                          </div>
                         </CardContent>
                       </Card>
                     ))}

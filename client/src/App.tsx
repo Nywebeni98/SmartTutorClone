@@ -12,6 +12,7 @@ import PaymentSuccess from "@/pages/payment-success";
 import PaymentFailure from "@/pages/payment-failure";
 import PaymentCancel from "@/pages/payment-cancel";
 import ResetPassword from "@/pages/reset-password";
+import Register from "@/pages/register";
 import NotFound from "@/pages/not-found";
 import { SiWhatsapp } from "react-icons/si";
 
@@ -34,6 +35,9 @@ function Router() {
       <Route path="/payment/success" component={PaymentSuccess} />
       <Route path="/payment/failure" component={PaymentFailure} />
       <Route path="/payment/cancel" component={PaymentCancel} />
+      
+      {/* Learner registration */}
+      <Route path="/register" component={Register} />
       
       {/* Password reset page */}
       <Route path="/reset-password" component={ResetPassword} />

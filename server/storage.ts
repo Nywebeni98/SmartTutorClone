@@ -75,6 +75,10 @@ export interface IStorage {
   getOrCreateConversation(studentEmail: string, studentName: string, tutorId: string, tutorEmail: string, tutorName: string): Promise<ChatConversation>;
   getConversationsByStudentEmail(email: string): Promise<ChatConversation[]>;
   getConversationsByTutorId(tutorId: string): Promise<ChatConversation[]>;
+
+  // Learner registration methods
+  createLearnerRegistration(data: import('@shared/schema').InsertLearnerRegistration): Promise<import('@shared/schema').LearnerRegistration>;
+  getAllLearnerRegistrations(): Promise<import('@shared/schema').LearnerRegistration[]>;
 }
 
 // In-memory storage implementation
@@ -409,6 +413,16 @@ export class MemStorage implements IStorage {
       return payment;
     }
     return undefined;
+  }
+
+  async createLearnerRegistration(data: import('@shared/schema').InsertLearnerRegistration): Promise<import('@shared/schema').LearnerRegistration> {
+    const id = randomUUID();
+    const registration = { id, ...data, createdAt: new Date() } as import('@shared/schema').LearnerRegistration;
+    return registration;
+  }
+
+  async getAllLearnerRegistrations(): Promise<import('@shared/schema').LearnerRegistration[]> {
+    return [];
   }
 }
 

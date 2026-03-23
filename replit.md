@@ -36,7 +36,7 @@ Preferred communication style: Simple, everyday language.
 -   **Development vs. Production:** Vite middleware for dev, static asset serving for prod.
 -   **Deployment:** Server binds to `0.0.0.0:5000` for Replit Autoscale, `/health` endpoint for monitoring.
 -   **Data Storage:** PostgreSQL via Drizzle ORM.
-    -   **Schema:** `users`, `contact_submissions`, `tutor_profiles`, `tutor_availability`, `booking_payments`, `payment_links`, `admin_settings`, `action_logs`.
+    -   **Schema:** `users`, `contact_submissions`, `tutor_profiles`, `tutor_availability`, `booking_payments`, `payment_links`, `admin_settings`, `action_logs`, `learner_registrations`.
     -   **Migration:** Drizzle Kit for schema changes.
 
 ## External Dependencies

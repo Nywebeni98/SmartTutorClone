@@ -15,6 +15,7 @@ import {
   actionLogs,
   chatMessages,
   chatConversations,
+  learnerRegistrations,
   type ContactSubmission,
   type InsertContactSubmission,
   type Appointment,
@@ -37,6 +38,8 @@ import {
   type InsertChatMessage,
   type ChatConversation,
   type InsertChatConversation,
+  type LearnerRegistration,
+  type InsertLearnerRegistration,
 } from '@shared/schema';
 import type { IStorage } from './storage';
 
@@ -555,6 +558,19 @@ export class DbStorage implements IStorage {
     return await db.select().from(chatConversations)
       .where(eq(chatConversations.tutorId, tutorId))
       .orderBy(desc(chatConversations.lastMessageAt));
+  }
+
+  // Learner registration methods
+  async createLearnerRegistration(data: InsertLearnerRegistration): Promise<LearnerRegistration> {
+    const [result] = await db.insert(learnerRegistrations).values({
+      id: randomUUID(),
+      ...data,
+    }).returning();
+    return result;
+  }
+
+  async getAllLearnerRegistrations(): Promise<LearnerRegistration[]> {
+    return db.select().from(learnerRegistrations).orderBy(desc(learnerRegistrations.createdAt));
   }
 }
 

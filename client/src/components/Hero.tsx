@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
-import { GraduationCap, BookOpen } from 'lucide-react';
+import { GraduationCap, BookOpen, UserPlus } from 'lucide-react';
+import { useLocation } from 'wouter';
 
 const slides = [
   {
@@ -13,6 +14,7 @@ const slides = [
 
 export function Hero() {
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [, navigate] = useLocation();
 
   const nextSlide = useCallback(() => {
     setCurrentSlide((prev) => (prev + 1) % slides.length);
@@ -117,6 +119,20 @@ export function Hero() {
             >
               <GraduationCap className="w-5 h-5 mr-2" />
               Get Started
+            </Button>
+
+            <Button
+              size="lg"
+              onClick={() => navigate('/register')}
+              className="min-w-[200px] text-base font-semibold shadow-lg"
+              style={{
+                backgroundColor: 'hsl(var(--brand-orange))',
+                color: 'white',
+              }}
+              data-testid="button-register-now"
+            >
+              <UserPlus className="w-5 h-5 mr-2" />
+              Register Now
             </Button>
           </div>
         </div>

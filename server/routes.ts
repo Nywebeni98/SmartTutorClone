@@ -1,7 +1,7 @@
 import type { Express, Request, Response, NextFunction } from "express";
 import { createServer, type Server } from "http";
 import { dbStorage, initializeDatabase } from "./dbStorage";
-import { insertContactSchema, insertAppointmentSchema, insertAvailabilitySchema, insertTutorProfileSchema, insertBookingPaymentSchema, passwordSchema, insertChatMessageSchema } from "@shared/schema";
+import { insertContactSchema, insertAppointmentSchema, insertAvailabilitySchema, insertTutorProfileSchema, insertBookingPaymentSchema, passwordSchema, insertChatMessageSchema, insertLearnerRegistrationSchema } from "@shared/schema";
 import { fromZodError } from "zod-validation-error";
 import { Resend } from 'resend';
 import { setupWebSocketServer } from './websocket';
@@ -437,6 +437,40 @@ export async function registerRoutes(app: Express): Promise<Server> {
         success: false,
         message: "Internal server error",
       });
+    }
+  });
+
+  // Learner registration endpoints
+  app.post("/api/learner-registrations", async (req, res) => {
+    try {
+      const validatedData = insertLearnerRegistrationSchema.parse(req.body);
+      const registration = await storage.createLearnerRegistration(validatedData);
+      res.status(201).json({
+        success: true,
+        message: "Registration submitted successfully",
+        id: registration.id,
+      });
+    } catch (error: any) {
+      if (error.name === 'ZodError') {
+        const validationError = fromZodError(error);
+        return res.status(400).json({
+          success: false,
+          message: "Validation error",
+          errors: validationError.message,
+        });
+      }
+      console.error("Error submitting learner registration:", error);
+      res.status(500).json({ success: false, message: "Internal server error" });
+    }
+  });
+
+  app.get("/api/admin/learner-registrations", requireAdmin, async (req, res) => {
+    try {
+      const registrations = await storage.getAllLearnerRegistrations();
+      res.json(registrations);
+    } catch (error) {
+      console.error("Error fetching learner registrations:", error);
+      res.status(500).json({ success: false, message: "Internal server error" });
     }
   });
 

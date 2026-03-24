@@ -1,0 +1,44 @@
+~/workspace$ git add .
+~/workspace$ git commit -m "Add municipality, township fields and registration updates"
+On branch main
+Your branch is ahead of 'origin/main' by 6 commits.
+  (use "git push" to publish your local commits)
+
+nothing to commit, working tree clean
+~/workspace$ git push origin main
+Enumerating objects: 84, done.
+Counting objects: 100% (84/84), done.
+Delta compression using up to 8 threads
+Compressing objects: 100% (62/62), done.
+Writing objects: 100% (65/65), 40.84 KiB | 8.17 MiB/s, done.
+Total 65 (delta 52), reused 0 (delta 0), pack-reused 0 (from 0)
+remote: Resolving deltas: 100% (52/52), completed with 18 local objects.
+remote: error: GH013: Repository rule violations found for refs/heads/main.
+remote: 
+remote: - GITHUB PUSH PROTECTION
+remote:   —————————————————————————————————————————
+remote:     Resolve the following violations before pushing again
+remote: 
+remote:     - Push cannot contain secrets
+remote: 
+remote:     
+remote:      (?) Learn how to resolve a blocked push
+remote:      https://docs.github.com/code-security/secret-scanning/working-with-secret-scanning-and-push-protection/working-with-push-protection-from-the-command-line#resolving-a-blocked-push
+remote:     
+remote:     
+remote:       —— GitHub Personal Access Token ——————————————————————
+remote:        locations:
+remote:          - commit: 1e386f8734b994b6a7b152e88634280274e633ca
+remote:            path: attached_assets/Pasted--Library-Commands-Search-files-Packager-files-Config-fi_1774293966227.txt:58
+remote:          - commit: 1e386f8734b994b6a7b152e88634280274e633ca
+remote:            path: attached_assets/Pasted--Library-Commands-Search-files-Packager-files-Config-fi_1774293966227.txt:212
+remote:     
+remote:        (?) To push, remove secret from commit(s) or follow this URL to allow the secret.
+remote:        https://github.com/Nywebeni98/SmartTutorClone/security/secret-scanning/unblock-secret/3BPMU4IIGyb4MZ8qmd7WqQRbIYo
+remote:     
+remote: 
+remote: 
+To https://github.com/Nywebeni98/SmartTutorClone.git
+ ! [remote rejected] main -> main (push declined due to repository rule violations)
+error: failed to push some refs to 'https://github.com/Nywebeni98/SmartTutorClone.git'
+~/workspace$ 
